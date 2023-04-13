@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styledComponent } from '../../styledComponents';
 import Field from '../ui/Field';
 import Button from '../ui/Button';
-import { Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, ActivityIndicator } from 'react-native';
 import { signIn } from '../../firebase/firebase-config';
 import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Alert from '../components/Alert';
 
 const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
@@ -13,6 +15,8 @@ const SignIn = ({ navigation }) => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [showAlert, setShowAlert] = useState(false);
+	const [errorMessage, setErrorMessage] = useState('');
 
 	const isEmailValid = (email) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,7 +25,8 @@ const SignIn = ({ navigation }) => {
 
 	const authHandler = async () => {
 		if (!isEmailValid(email) || !password || password.length < 8) {
-			Alert.alert('Введите корректный email и пароль!');
+			setShowAlert(true);
+			setErrorMessage('Введите корректные данные!');
 			return;
 		}
 		try {
@@ -31,7 +36,14 @@ const SignIn = ({ navigation }) => {
 			navigation.navigate('Home');
 		} catch (error) {
 			console.log('Sign in failed:', error.message);
-			Alert.alert('Ошибка входа');
+			if (error.code === 'auth/user-not-found') {
+				setShowAlert(true);
+				setErrorMessage('Неправильный email или пароль!');
+				return;
+			} else {
+				setShowAlert(true);
+				setErrorMessage('Ошибка регистрации!');
+			}
 		} finally {
 			setEmail('');
 			setPassword('');
@@ -39,12 +51,36 @@ const SignIn = ({ navigation }) => {
 		}
 	};
 
+	useEffect(() => {
+		const loadUserName = async () => {
+			const name = await AsyncStorage.getItem('userName');
+			if (name) {
+				navigation.navigate('Home');
+			}
+		};
+		loadUserName();
+	}, []);
+
+	const closeAlert = () => {
+		setShowAlert(false);
+	};
+
 	return (
 		<View className='flex-1 justify-center items-center '>
 			{loading ? (
-				<ActivityIndicator />
+				<ActivityIndicator size='large' />
 			) : (
 				<>
+					<View className='absolute top-0 w-screen '>
+						{showAlert && (
+							<Alert
+								message={errorMessage}
+								status='error'
+								onClose={closeAlert}
+							/>
+						)}
+					</View>
+
 					<View>
 						<Text className='text-text_dark text-3xl font-bold'>Войти</Text>
 					</View>

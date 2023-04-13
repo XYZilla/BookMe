@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { styledComponent } from '../../styledComponents';
 import Field from '../ui/Field';
 import Button from '../ui/Button';
-import { Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, ActivityIndicator } from 'react-native';
 import { signUp } from '../../firebase/firebase-config';
+import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import Alert from '../components/Alert';
+import LottieIcon from '../components/LottieIcon';
+import succesAnimation from '../../animations/success.json';
 
 const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
@@ -13,6 +17,9 @@ const SignUp = ({ navigation }) => {
 	const [password, setPassword] = useState('');
 	const [name, setName] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [showAlert, setShowAlert] = useState(false);
+	const [errorMessage, setErrorMessage] = useState('');
+	const [isSuccess, setIsSucces] = useState(false);
 
 	const isEmailValid = (email) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,18 +28,25 @@ const SignUp = ({ navigation }) => {
 
 	const authHandler = async () => {
 		if (!isEmailValid(email) || !password || password.length < 8) {
-			Alert.alert('Введите корректные данные!');
+			setShowAlert(true);
+			setErrorMessage('Введите корректные данные!');
 			return;
 		}
 		try {
 			setLoading(true);
 			await signUp(email, password, name);
 			console.log('User signed up successfully');
-			Alert.alert('Вы успешно зарегистрировались');
-			navigation.navigate('SignIn');
+			setIsSucces(true);
 		} catch (error) {
 			console.log('Sign Up failed:', error.message);
-			Alert.alert('Ошибка регистрации', error.message);
+			if (error.code === 'auth/email-already-in-use') {
+				setShowAlert(true);
+				setErrorMessage('Этот email уже зарегистрирован');
+				return;
+			} else {
+				setShowAlert(true);
+				setErrorMessage('Ошибка регистрации!');
+			}
 		} finally {
 			setName('');
 			setEmail('');
@@ -41,12 +55,37 @@ const SignUp = ({ navigation }) => {
 		}
 	};
 
+	const closeAlert = () => {
+		setShowAlert(false);
+	};
+
+	if (isSuccess) {
+		return (
+			<View className='flex-1 justify-center items-center'>
+				<LottieIcon
+					source={succesAnimation}
+					onAnimationFinish={() => navigation.navigate('SignIn')}
+				/>
+			</View>
+		);
+	}
+
 	return (
 		<View className='flex-1 justify-center items-center '>
 			{loading ? (
-				<ActivityIndicator />
+				<ActivityIndicator size='large' />
 			) : (
 				<>
+					<View className='absolute top-0 w-screen '>
+						{showAlert && (
+							<Alert
+								message={errorMessage}
+								status='error'
+								onClose={closeAlert}
+							/>
+						)}
+					</View>
+
 					<View>
 						<Text className='text-text_dark text-3xl font-bold'>
 							Регистрация
@@ -58,19 +97,37 @@ const SignUp = ({ navigation }) => {
 								value={name}
 								onChange={(val) => setName(val)}
 								placeholder='Введите имя'
+								icon={
+									<AntDesign
+										name='user'
+										size={24}
+										color='black'
+									/>
+								}
 							/>
 
 							<Field
 								value={email}
 								onChange={(val) => setEmail(val)}
 								placeholder='Введите email'
+								icon={
+									<MaterialIcons
+										name='alternate-email'
+										size={24}
+									/>
+								}
 							/>
-
 							<Field
 								value={password}
 								onChange={(val) => setPassword(val)}
-								placeholder='Введите пароль'
+								placeholder='Придумайте пароль'
 								isSecure={true}
+								icon={
+									<MaterialIcons
+										name='lock-outline'
+										size={24}
+									/>
+								}
 							/>
 							<View className='mt-4 mb-5'>
 								<Button

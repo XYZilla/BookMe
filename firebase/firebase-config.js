@@ -5,6 +5,7 @@ import {
 	createUserWithEmailAndPassword,
 	updateProfile,
 } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyCYNmHo4Br5PT_LzjBbD74582z_O1HH7h4',
@@ -16,7 +17,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+export const auth = getAuth(app);
 
 export const signUp = async (email, password, displayName) => {
 	try {
@@ -25,19 +26,19 @@ export const signUp = async (email, password, displayName) => {
 			email,
 			password
 		);
-
-		if (
-			userCredential.additionalUserInfo &&
-			userCredential.additionalUserInfo.isNewUser
-		) {
-			const user = userCredential.user;
-			console.log('User registered:', user);
+		const user = userCredential.user;
+		if (user) {
+			console.log('User registered:', user.uid);
 			await updateProfile(user, { displayName });
+			auth.onAuthStateChanged((updatedUser) => {
+				console.log('Updated user:', updatedUser.displayName);
+			});
 		} else {
-			console.log('Registration failed');
+			console.log('Registration failed:', error.message);
 		}
 	} catch (error) {
 		console.log('Registration failed:', error.message);
+		throw error;
 	}
 };
 
@@ -52,7 +53,8 @@ export const signIn = async (email, password) => {
 		if (!user.uid) {
 			throw new Error('Failed to sign in');
 		}
-		console.log('User signed in:', user.uid);
+		console.log('User signed in:', user.displayName);
+		await AsyncStorage.setItem('userName', user.displayName);
 	} catch (error) {
 		console.log('Sign in failed:', error.message);
 		throw error;

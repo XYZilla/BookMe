@@ -25,6 +25,7 @@ const Field = ({
 				placeholder={placeholder}
 				onChangeText={onChange}
 				autoCorrect={false}
+				autoCapitalize='none'
 			/>
 		</StyledView>
 	);
