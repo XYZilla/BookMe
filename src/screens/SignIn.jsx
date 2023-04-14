@@ -48,6 +48,7 @@ const SignIn = ({ navigation }) => {
 			setEmail('');
 			setPassword('');
 			setLoading(false);
+			setShowAlert(false);
 		}
 	};
 
@@ -119,7 +120,11 @@ const SignIn = ({ navigation }) => {
 
 						<View className='flex-row justify-between'>
 							<Text className=''>Еще нет аккаунта?</Text>
-							<TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+							<TouchableOpacity
+								onPress={() =>
+									navigation.navigate('SignUp', setShowAlert(false))
+								}
+							>
 								<Text className='font-semibold'>Зарегистрируйся</Text>
 							</TouchableOpacity>
 						</View>

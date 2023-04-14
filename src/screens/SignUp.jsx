@@ -41,7 +41,7 @@ const SignUp = ({ navigation }) => {
 			console.log('Sign Up failed:', error.message);
 			if (error.code === 'auth/email-already-in-use') {
 				setShowAlert(true);
-				setErrorMessage('Этот email уже зарегистрирован');
+				setErrorMessage('Этот email уже зарегистрирован, попробуйте другой!');
 				return;
 			} else {
 				setShowAlert(true);
@@ -52,6 +52,7 @@ const SignUp = ({ navigation }) => {
 			setEmail('');
 			setPassword('');
 			setLoading(false);
+			setShowAlert(false);
 		}
 	};
 

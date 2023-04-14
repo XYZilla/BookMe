@@ -12,12 +12,14 @@ const Field = ({
 	isSecure = false,
 	color = 'bg-secondary',
 	icon,
+	editable = true,
 }) => {
 	return (
 		<StyledView className='relative'>
 			<Text className='absolute left-0 pl-3 z-10 top-7 text-text_dark'>
 				{icon}
 			</Text>
+
 			<StyledField
 				className={`${color} h-14 mt-3 pl-10 pr-3 rounded-xl text-[18px]`}
 				value={value}
@@ -26,6 +28,7 @@ const Field = ({
 				onChangeText={onChange}
 				autoCorrect={false}
 				autoCapitalize='none'
+				editable={editable}
 			/>
 		</StyledView>
 	);

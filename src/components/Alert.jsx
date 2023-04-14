@@ -42,7 +42,7 @@ const Alert = ({ message, status, onClose }) => {
 
 	return (
 		<Animated.View
-			className={`${color} w-full h-32 justify-center pt-20 flex-row`}
+			className={`${color} w-full min-h-0 p-5 overflow-x-hidden overflow-y-hidden justify-center pt-20 flex-row`}
 			style={{
 				transform: [
 					{
@@ -56,7 +56,7 @@ const Alert = ({ message, status, onClose }) => {
 				size={24}
 				color='white'
 			/>
-			<Text className='ml-2 text-lg mt-[-2px] text-text_light font-semibold'>
+			<Text className='ml-2 text-lg mt-[-2px] w-72 text-text_light font-semibold'>
 				{message}
 			</Text>
 			<TouchableOpacity
