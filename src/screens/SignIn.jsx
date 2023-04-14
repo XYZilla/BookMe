@@ -36,7 +36,10 @@ const SignIn = ({ navigation }) => {
 			navigation.navigate('Home');
 		} catch (error) {
 			console.log('Sign in failed:', error.message);
-			if (error.code === 'auth/user-not-found') {
+			if (
+				error.code === 'auth/user-not-found' ||
+				error.code === 'auth/wrong-password'
+			) {
 				setShowAlert(true);
 				setErrorMessage('Неправильный email или пароль!');
 				return;
@@ -48,7 +51,6 @@ const SignIn = ({ navigation }) => {
 			setEmail('');
 			setPassword('');
 			setLoading(false);
-			setShowAlert(false);
 		}
 	};
 
@@ -131,6 +133,7 @@ const SignIn = ({ navigation }) => {
 					</View>
 				</>
 			)}
+			
 		</View>
 	);
 };
