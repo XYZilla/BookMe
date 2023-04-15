@@ -33,7 +33,7 @@ const SignIn = ({ navigation }) => {
 			setLoading(true);
 			await signIn(email, password);
 			console.log('User signed in successfully');
-			navigation.navigate('Home');
+			navigation.navigate('Main');
 		} catch (error) {
 			console.log('Sign in failed:', error.message);
 			if (
@@ -58,7 +58,7 @@ const SignIn = ({ navigation }) => {
 		const loadUserName = async () => {
 			const name = await AsyncStorage.getItem('userName');
 			if (name) {
-				navigation.navigate('Home');
+				navigation.navigate('Main');
 			}
 		};
 		loadUserName();
@@ -133,7 +133,6 @@ const SignIn = ({ navigation }) => {
 					</View>
 				</>
 			)}
-			
 		</View>
 	);
 };

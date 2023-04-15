@@ -7,7 +7,7 @@ import Field from '../ui/Field';
 import Button from '../ui/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import BottomSheet from '../components/BottomSheet';
-import { FlatList, TouchableWithoutFeedback } from 'react-native';
+import { Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
 import CategoryCard from '../components/CategoryCard';
 import ServiceCard from '../components/ServiceCard';
 
@@ -119,7 +119,7 @@ const HomeScreen = ({ navigation }) => {
 
 	return (
 		<TouchableWithoutFeedback onPress={closeBottomSheet}>
-			<View className=' mt-16 flex-1'>
+			<View className='mt-16 flex-1'>
 				<View className='mx-5'>
 					<View className='flex-row justify-between'>
 						<View className='w-9/12'>
@@ -164,21 +164,31 @@ const HomeScreen = ({ navigation }) => {
 						<View className='mt-4 mb-5'>
 							<Button
 								title='Найти'
-								onPress={openBottomSheet}
+								onPress={() => ''}
 							/>
 						</View>
 					</View>
 				</View>
-				<View className='ml-5'>
-					<Text className='text-xl font-semibold py-2'>Популярные услуги</Text>
+
+				<View className='h-screen'>
+					<Text className='text-xl font-semibold mb-2 ml-5'>Популярные</Text>
 					<FlatList
 						data={data}
 						horizontal
+						snapToInterval={Dimensions.get('window').width / 1.4 + 10}
+						contentContainerStyle={{ paddingHorizontal: 19.5 }}
+						ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
 						renderItem={({ item }) => (
-							<ServiceCard
-								title={item.text}
-								onPress={() => handlePressSelectCategory(item)}
-							/>
+							<View>
+								<ServiceCard
+									title={item.text}
+									onPress={() =>
+										navigation.navigate('Detail', {
+											title: item.text,
+										})
+									}
+								/>
+							</View>
 						)}
 						keyExtractor={(item) => item.id}
 					/>
