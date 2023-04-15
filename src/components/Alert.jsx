@@ -42,7 +42,7 @@ const Alert = ({ message, status, onClose }) => {
 
 	return (
 		<Animated.View
-			className={`${color} w-full min-h-0 p-5 overflow-x-hidden overflow-y-hidden justify-center pt-20 flex-row`}
+			className={`${color} w-full min-h-0 p-5 overflow-x-hidden overflow-y-hidden justify-center pt-20 mb-[-40px] flex-row`}
 			style={{
 				transform: [
 					{

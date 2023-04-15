@@ -10,6 +10,7 @@ import BottomSheet from '../components/BottomSheet';
 import { Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
 import CategoryCard from '../components/CategoryCard';
 import ServiceCard from '../components/ServiceCard';
+import Alert from '../components/Alert';
 
 const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
@@ -21,6 +22,9 @@ const HomeScreen = ({ navigation }) => {
 	const [isChangeDate, setIsChangeDate] = useState(false);
 	const [isChooseService, setIsChooseService] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState(null);
+	const [loading, setLoading] = useState(false);
+	const [showAlert, setShowAlert] = useState(false);
+	const [errorMessage, setErrorMessage] = useState('');
 
 	const currentTime = new Date();
 	const currentYear = new Date().getFullYear();
@@ -60,6 +64,21 @@ const HomeScreen = ({ navigation }) => {
 	const handlePressSelectCategory = (item) => {
 		setSelectedCategory(item);
 		closeBottomSheet();
+	};
+
+	const closeAlert = () => {
+		setShowAlert(false);
+	};
+
+	const handleSearch = () => {
+		if (!selectedCategory) {
+			setShowAlert(true);
+			setErrorMessage('Выберитие услугу!');
+			return;
+		}
+		navigation.navigate('Search');
+		setSelectedCategory({});
+		setShowAlert(false);
 	};
 
 	const formattedDate = date.toLocaleDateString('ru-RU', {
@@ -119,8 +138,17 @@ const HomeScreen = ({ navigation }) => {
 
 	return (
 		<TouchableWithoutFeedback onPress={closeBottomSheet}>
-			<View className='mt-16 flex-1'>
-				<View className='mx-5'>
+			<View className='flex-1'>
+				<View className='w-screen'>
+					{showAlert && (
+						<Alert
+							message={errorMessage}
+							status='error'
+							onClose={closeAlert}
+						/>
+					)}
+				</View>
+				<View className='mx-5 mt-16'>
 					<View className='flex-row justify-between'>
 						<View className='w-9/12'>
 							<Text className='font-normal text-2xl mb-1'>{greeting}</Text>
@@ -164,7 +192,7 @@ const HomeScreen = ({ navigation }) => {
 						<View className='mt-4 mb-5'>
 							<Button
 								title='Найти'
-								onPress={() => ''}
+								onPress={handleSearch}
 							/>
 						</View>
 					</View>
