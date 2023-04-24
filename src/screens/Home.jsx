@@ -95,7 +95,7 @@ const HomeScreen = ({ navigation }) => {
 		} else if (currentHour >= 18 && currentHour < 24) {
 			return 'Добрый вечер';
 		} else {
-			return 'Доброй ночи';
+			return 'Добрая ночь';
 		}
 	};
 
