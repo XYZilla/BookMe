@@ -25,6 +25,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b6f6b389-611d-43b8-9eee-429456470ac3"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b6f6b389-611d-43b8-9eee-429456470ac3"
+    },
+    "owner": "xyzilla"
   }
 }

@@ -5,6 +5,7 @@ import {
 	createUserWithEmailAndPassword,
 	updateProfile,
 } from 'firebase/auth';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
@@ -18,6 +19,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+const db = getFirestore();
 
 export const signUp = async (email, password, displayName) => {
 	try {
@@ -30,6 +32,15 @@ export const signUp = async (email, password, displayName) => {
 		if (user) {
 			console.log('User registered:', user.uid);
 			await updateProfile(user, { displayName });
+
+			// Save user data to Firestore
+			const userCollectionRef = collection(db, 'users');
+			const newUserDoc = await addDoc(userCollectionRef, {
+				uid: user.uid,
+				displayName: displayName,
+				email: email,
+			});
+
 			auth.onAuthStateChanged((updatedUser) => {
 				console.log('Updated user:', updatedUser.displayName);
 			});

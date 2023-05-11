@@ -85,7 +85,7 @@ const SignIn = ({ navigation }) => {
 					</View>
 
 					<View>
-						<Text className='text-text_dark text-3xl font-bold'>Dev</Text>
+						<Text className='text-text_dark text-3xl font-bold'>Войти</Text>
 					</View>
 					<View className='w-9/12'>
 						<>

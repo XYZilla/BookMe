@@ -22,7 +22,6 @@ const HomeScreen = ({ navigation }) => {
 	const [isChangeDate, setIsChangeDate] = useState(false);
 	const [isChooseService, setIsChooseService] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState(null);
-	const [loading, setLoading] = useState(false);
 	const [showAlert, setShowAlert] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
@@ -73,11 +72,11 @@ const HomeScreen = ({ navigation }) => {
 	const handleSearch = () => {
 		if (!selectedCategory) {
 			setShowAlert(true);
-			setErrorMessage('Выберитие услугу!');
+			setErrorMessage('Выберите услугу!');
 			return;
 		}
+		setSelectedCategory(null);
 		navigation.navigate('Search');
-		setSelectedCategory({});
 		setShowAlert(false);
 	};
 
@@ -139,7 +138,7 @@ const HomeScreen = ({ navigation }) => {
 	return (
 		<TouchableWithoutFeedback onPress={closeBottomSheet}>
 			<View className='flex-1'>
-				<View className='w-screen'>
+				<View className='absolute top-0 w-screen z-10'>
 					{showAlert && (
 						<Alert
 							message={errorMessage}
