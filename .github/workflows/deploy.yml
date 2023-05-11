@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
-      run: yarn global add @expo/eas-cli
+      run: yarn global remove @expo/eas-cli && yarn global add @expo/eas-cli
     - name: Login to Expo
       run: npx expo login -u Zero0ne -p User#153789
     - name: Publish to Expo
