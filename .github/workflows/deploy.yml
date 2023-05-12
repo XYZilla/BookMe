@@ -11,6 +11,8 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
       - name: Login to Expo
         run: npx expo login -u Zero0ne -p User#153789
       - name: Publish to Expo
