@@ -7,10 +7,13 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: yarn
-    - name: Login to Expo
-      run: npx expo login -u Zero0ne -p User#153789
-    - name: Publish to Expo
-      run: npx eas update --non-interactive
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          npm install
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+      - name: Login to Expo
+        run: npx expo login -u Zero0ne -p User#153789
+      - name: Publish to Expo
+        run: npx eas update --branch main --message "Deploying update"
