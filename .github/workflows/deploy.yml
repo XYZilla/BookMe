@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: |
-          npm install @expo/eas-cli
+          npm install
       - name: Login to Expo
         run: npx expo login -u Zero0ne -p User#153789
       - name: Publish to Expo
