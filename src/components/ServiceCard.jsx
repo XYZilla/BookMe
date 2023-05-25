@@ -1,4 +1,4 @@
-import { Dimensions, TouchableOpacity } from 'react-native';
+import { Dimensions, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { styledComponent } from '../../styledComponents';
 
@@ -9,18 +9,21 @@ const screenWidth = Dimensions.get('window').width;
 const cardWidth = screenWidth / 1.4;
 const cardHeight = screenWidth / 1.4;
 
-const ServiceCard = ({ title, onPress }) => {
+const ServiceCard = ({ title, onPress, image }) => {
 	return (
 		<TouchableOpacity onPress={onPress}>
-			<View
-				className='bg-gray-400 rounded-xl justify-center items-center'
+			<Image
+				source={{
+					uri: image,
+				}}
 				style={{
 					width: cardWidth,
 					height: cardHeight,
+					borderRadius: 10,
 				}}
-			>
-				<Text className='text-text_light text-xl'>{title}</Text>
-			</View>
+			/>
+
+			<Text className='text-text_dark text-xl mx-3 mt-1'>{title}</Text>
 		</TouchableOpacity>
 	);
 };

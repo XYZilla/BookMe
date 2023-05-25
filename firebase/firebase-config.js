@@ -2,10 +2,19 @@ import { initializeApp } from 'firebase/app';
 import {
 	getAuth,
 	signInWithEmailAndPassword,
+	getUserByLogin,
 	createUserWithEmailAndPassword,
 	updateProfile,
 } from 'firebase/auth';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import {
+	getFirestore,
+	doc,
+	setDoc,
+	getDocs,
+	query,
+	collection,
+	where,
+} from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
@@ -19,7 +28,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-const db = getFirestore();
+export const db = getFirestore();
 
 export const signUp = async (email, password, displayName) => {
 	try {
@@ -33,12 +42,12 @@ export const signUp = async (email, password, displayName) => {
 			console.log('User registered:', user.uid);
 			await updateProfile(user, { displayName });
 
-			// Save user data to Firestore
-			const userCollectionRef = collection(db, 'users');
-			const newUserDoc = await addDoc(userCollectionRef, {
+			// Добавление пользователя в Firestore
+			const userDocRef = doc(db, 'users', user.uid);
+			await setDoc(userDocRef, {
+				login: displayName, // Используем displayName в качестве значения login
 				uid: user.uid,
-				displayName: displayName,
-				email: email,
+				email: user.email,
 			});
 
 			auth.onAuthStateChanged((updatedUser) => {
@@ -53,19 +62,46 @@ export const signUp = async (email, password, displayName) => {
 	}
 };
 
-export const signIn = async (email, password) => {
+export const signIn = async (emailOrLogin, password) => {
 	try {
-		const userCredential = await signInWithEmailAndPassword(
-			auth,
-			email,
-			password
-		);
-		const user = userCredential.user;
-		if (!user.uid) {
+		let userCredential;
+		let user;
+
+		// Проверяем, является ли введенное значение email или login
+		if (emailOrLogin.includes('@')) {
+			// Вход по email
+			userCredential = await signInWithEmailAndPassword(
+				auth,
+				emailOrLogin,
+				password
+			);
+			user = userCredential.user;
+		} else {
+			// Вход по login
+			// Находим пользователя по login в Firestore
+			const querySnapshot = await getDocs(
+				query(collection(db, 'users'), where('login', '==', emailOrLogin))
+			);
+			const users = querySnapshot.docs.map((doc) => doc.data());
+			user = users[0]; // Предполагаем, что найден только один пользователь
+
+			if (user) {
+				// Аутентификация пользователя по email и паролю
+				userCredential = await signInWithEmailAndPassword(
+					auth,
+					user.email,
+					password
+				);
+				user = userCredential.user;
+			}
+		}
+
+		if (user) {
+			console.log('User signed in:', user.displayName);
+			await AsyncStorage.setItem('userName', user.displayName);
+		} else {
 			throw new Error('Failed to sign in');
 		}
-		console.log('User signed in:', user.displayName);
-		await AsyncStorage.setItem('userName', user.displayName);
 	} catch (error) {
 		console.log('Sign in failed:', error.message);
 		throw error;

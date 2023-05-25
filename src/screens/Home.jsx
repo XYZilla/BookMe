@@ -7,10 +7,17 @@ import Field from '../ui/Field';
 import Button from '../ui/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import BottomSheet from '../components/BottomSheet';
-import { Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
+import {
+	Dimensions,
+	FlatList,
+	TouchableWithoutFeedback,
+	ActivityIndicator,
+} from 'react-native';
 import CategoryCard from '../components/CategoryCard';
 import ServiceCard from '../components/ServiceCard';
 import Alert from '../components/Alert';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase/firebase-config';
 
 const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
@@ -24,6 +31,9 @@ const HomeScreen = ({ navigation }) => {
 	const [selectedCategory, setSelectedCategory] = useState(null);
 	const [showAlert, setShowAlert] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [isLoading, setIsLoading] = useState(true);
+	const [servicesData, setServicesData] = useState([]);
+	const [categoriesData, setCategoriesData] = useState([]);
 
 	const currentTime = new Date();
 	const currentYear = new Date().getFullYear();
@@ -54,15 +64,10 @@ const HomeScreen = ({ navigation }) => {
 	const onChangeDate = (event, selectedDate) => {
 		const currentDate = selectedDate || date;
 		setDate(currentDate);
-		setTimeout(() => {
-			setIsChangeDate(false);
-			closeBottomSheet();
-		}, 100);
 	};
 
 	const handlePressSelectCategory = (item) => {
 		setSelectedCategory(item);
-		closeBottomSheet();
 	};
 
 	const closeAlert = () => {
@@ -98,18 +103,6 @@ const HomeScreen = ({ navigation }) => {
 		}
 	};
 
-	const data = [
-		{ id: '1', text: 'Элемент 1' },
-		{ id: '2', text: 'Элемент 2' },
-		{ id: '3', text: 'Элемент 3' },
-		{ id: '4', text: 'Элемент 4' },
-		{ id: '5', text: 'Элемент 5' },
-		{ id: '6', text: 'Элемент 6' },
-		{ id: '7', text: 'Элемент 7' },
-		{ id: '8', text: 'Элемент 8' },
-		{ id: '9', text: 'Элемент 9' },
-	];
-
 	const greeting = `${getGreeting()}, ${userName}!`;
 
 	useEffect(() => {
@@ -135,97 +128,154 @@ const HomeScreen = ({ navigation }) => {
 		navigation.navigate('SignIn');
 	};
 
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const servicesQuerySnapshot = await getDocs(collection(db, 'services'));
+				const newServicesData = [];
+
+				servicesQuerySnapshot.forEach((doc) => {
+					newServicesData.push(doc.data());
+				});
+
+				const categoriesQuerySnapshot = await getDocs(
+					collection(db, 'categories')
+				);
+				const newCategoriesData = [];
+				categoriesQuerySnapshot.forEach((doc) => {
+					newCategoriesData.push(doc.data());
+				});
+
+				setServicesData(newServicesData);
+				setCategoriesData(newCategoriesData);
+				setIsLoading(false);
+			} catch (error) {
+				console.log('Error fetching data: ', error);
+			}
+		};
+
+		fetchData();
+	}, []);
+
 	return (
-		<TouchableWithoutFeedback onPress={closeBottomSheet}>
-			<View className='flex-1'>
-				<View className='absolute top-0 w-screen z-10'>
-					{showAlert && (
-						<Alert
-							message={errorMessage}
-							status='error'
-							onClose={closeAlert}
-						/>
-					)}
-				</View>
-				<View className='mx-5 mt-16'>
-					<View className='flex-row justify-between'>
-						<View className='w-9/12'>
-							<Text className='font-normal text-2xl mb-1'>{greeting}</Text>
-							<Text className='font-bold text-4xl'>
-								Куда хотите записаться?
-							</Text>
-						</View>
-						<TouchableOpacity onPress={exitHandle}>
-							<Text className='font-semibold text-lg'>Выйти</Text>
-						</TouchableOpacity>
+		<View className='flex-1'>
+			<TouchableWithoutFeedback onPress={closeBottomSheet}>
+				<View>
+					<View className='absolute top-0 w-screen z-10'>
+						{showAlert && (
+							<Alert
+								message={errorMessage}
+								status='error'
+								onClose={closeAlert}
+							/>
+						)}
 					</View>
-					<View className='mt-5'>
-						<TouchableOpacity onPress={openServiceChooseHandler}>
-							<Field
-								placeholder='Выберите услугу'
-								editable={false}
-								value={selectedCategory?.text ?? ''}
-								icon={
-									<MaterialCommunityIcons
-										name='widgets-outline'
-										size={24}
-									/>
-								}
-							/>
-						</TouchableOpacity>
 
-						<TouchableOpacity onPress={openDatePickerHandler}>
-							<Field
-								value={formattedDate}
-								placeholder='Выберите дату'
-								editable={false}
-								icon={
-									<FontAwesome5
-										name='calendar-alt'
-										size={24}
-									/>
-								}
-							/>
-						</TouchableOpacity>
-
-						<View className='mt-4 mb-5'>
-							<Button
-								title='Найти'
-								onPress={handleSearch}
-							/>
+					<View className='mx-5 mt-16'>
+						<View className='flex-row justify-between'>
+							<View className='w-9/12'>
+								<Text className='font-normal text-2xl mb-1'>{greeting}</Text>
+								<Text className='font-bold text-4xl'>
+									Куда хотите записаться?
+								</Text>
+							</View>
+							<TouchableOpacity onPress={exitHandle}>
+								<Text className='font-semibold text-lg'>Выйти</Text>
+							</TouchableOpacity>
 						</View>
-					</View>
-				</View>
-
-				<View className='h-screen'>
-					<Text className='text-xl font-semibold mb-2 ml-5'>Популярные</Text>
-					<FlatList
-						data={data}
-						horizontal
-						snapToInterval={Dimensions.get('window').width / 1.4 + 10}
-						contentContainerStyle={{ paddingHorizontal: 19.5 }}
-						ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
-						renderItem={({ item }) => (
-							<View>
-								<ServiceCard
-									title={item.text}
-									onPress={() =>
-										navigation.navigate('Detail', {
-											title: item.text,
-										})
+						<View className='mt-5'>
+							<TouchableOpacity onPress={openServiceChooseHandler}>
+								<Field
+									placeholder='Выберите категорию'
+									editable={false}
+									value={selectedCategory?.name ?? ''}
+									icon={
+										<MaterialCommunityIcons
+											name='widgets-outline'
+											size={24}
+										/>
 									}
+								/>
+							</TouchableOpacity>
+
+							<TouchableOpacity onPress={openDatePickerHandler}>
+								<Field
+									value={formattedDate}
+									placeholder='Выберите дату'
+									editable={false}
+									icon={
+										<FontAwesome5
+											name='calendar-alt'
+											size={24}
+										/>
+									}
+								/>
+							</TouchableOpacity>
+
+							<View className='mt-4 mb-5'>
+								<Button
+									title='Найти'
+									onPress={handleSearch}
+								/>
+							</View>
+						</View>
+					</View>
+					<View className='h-screen'>
+						<Text className='text-xl font-semibold mb-2 ml-5'>Популярные</Text>
+						{isLoading ? (
+							<View className='justify-center items-center mt-5'>
+								<ActivityIndicator size='large' />
+							</View>
+						) : (
+							<View>
+								<FlatList
+									data={servicesData}
+									horizontal
+									pagingEnabled
+									showsHorizontalScrollIndicator={false}
+									snapToInterval={Dimensions.get('window').width / 1.4 + 10}
+									contentContainerStyle={{ paddingHorizontal: 19.5 }}
+									ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+									renderItem={({ item }) => (
+										<View>
+											<ServiceCard
+												title={item.name}
+												image={item.image_url}
+												onPress={() =>
+													navigation.navigate('Detail', {
+														id: item.id,
+														title: item.name,
+														image: item.image_url,
+														address: item.address,
+														desc: item.desc,
+														rating: item.rating,
+														count_reviews: item.count_reviews,
+													})
+												}
+											/>
+										</View>
+									)}
+									keyExtractor={(item) => item.id}
 								/>
 							</View>
 						)}
-						keyExtractor={(item) => item.id}
-					/>
+					</View>
 				</View>
-
-				<BottomSheet
-					ref={bottomSheetModalRef}
-					onClose={closeBottomSheet}
-				>
-					{isChangeDate && (
+			</TouchableWithoutFeedback>
+			<BottomSheet
+				ref={bottomSheetModalRef}
+				onClose={closeBottomSheet}
+			>
+				{isChangeDate && (
+					<View>
+						<View className='flex-row justify-between px-5 mt-[-10px] mb-2'>
+							<Text className='text-lg font-semibold py-2'>Выберите дату</Text>
+							<TouchableOpacity onPress={closeBottomSheet}>
+								<Text className='text-lg font-semibold py-2 text-blue-500'>
+									готово
+								</Text>
+							</TouchableOpacity>
+						</View>
 						<DateTimePicker
 							value={date}
 							mode='date'
@@ -235,28 +285,35 @@ const HomeScreen = ({ navigation }) => {
 							minimumDate={new Date(currentYear, 0, 1)}
 							maximumDate={new Date(currentYear, 11, 31)}
 						/>
-					)}
-					{isChooseService && (
-						<View className='mx-5 h-screen'>
+					</View>
+				)}
+				{isChooseService && (
+					<View className='mx-5 h-screen'>
+						<View className='flex-row justify-between mt-[-10px] mb-2'>
 							<Text className='text-lg font-semibold py-2'>
-								Выберите услугу
+								Выберите категорию
 							</Text>
-							<FlatList
-								data={data}
-								numColumns={3}
-								renderItem={({ item }) => (
-									<CategoryCard
-										title={item.text}
-										onPress={() => handlePressSelectCategory(item)}
-									/>
-								)}
-								keyExtractor={(item) => item.id}
-							/>
+							<TouchableOpacity onPress={closeBottomSheet}>
+								<Text className='text-lg font-semibold py-2 text-blue-500'>
+									готово
+								</Text>
+							</TouchableOpacity>
 						</View>
-					)}
-				</BottomSheet>
-			</View>
-		</TouchableWithoutFeedback>
+						<FlatList
+							data={categoriesData}
+							numColumns={3}
+							renderItem={({ item }) => (
+								<CategoryCard
+									title={item.name}
+									onPress={() => handlePressSelectCategory(item)}
+								/>
+							)}
+							keyExtractor={(item) => item.id}
+						/>
+					</View>
+				)}
+			</BottomSheet>
+		</View>
 	);
 };
 

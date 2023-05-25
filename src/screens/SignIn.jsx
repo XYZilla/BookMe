@@ -12,7 +12,7 @@ const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
 
 const SignIn = ({ navigation }) => {
-	const [email, setEmail] = useState('');
+	const [emailOrLogin, setEmailOrLogin] = useState('');
 	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [showAlert, setShowAlert] = useState(false);
@@ -24,14 +24,18 @@ const SignIn = ({ navigation }) => {
 	};
 
 	const authHandler = async () => {
-		if (!isEmailValid(email) || !password || password.length < 8) {
+		if (
+			(!isEmailValid(emailOrLogin) && !emailOrLogin) ||
+			!password ||
+			password.length < 8
+		) {
 			setShowAlert(true);
 			setErrorMessage('Введите корректные данные!');
 			return;
 		}
 		try {
 			setLoading(true);
-			await signIn(email, password);
+			await signIn(emailOrLogin, password);
 			console.log('User signed in successfully');
 			navigation.navigate('Main');
 		} catch (error) {
@@ -45,10 +49,10 @@ const SignIn = ({ navigation }) => {
 				return;
 			} else {
 				setShowAlert(true);
-				setErrorMessage('Ошибка регистрации!');
+				setErrorMessage('Ошибка входа!');
 			}
 		} finally {
-			setEmail('');
+			setEmailOrLogin('');
 			setPassword('');
 			setLoading(false);
 		}
@@ -85,14 +89,14 @@ const SignIn = ({ navigation }) => {
 					</View>
 
 					<View>
-						<Text className='text-text_dark text-3xl font-bold'>Dev</Text>
+						<Text className='text-text_dark text-3xl font-bold'>Войти</Text>
 					</View>
 					<View className='w-9/12'>
 						<>
 							<Field
-								value={email}
-								onChange={(val) => setEmail(val)}
-								placeholder='Введите email'
+								value={emailOrLogin}
+								onChange={(val) => setEmailOrLogin(val)}
+								placeholder='Введите email или login'
 								icon={
 									<MaterialIcons
 										name='alternate-email'

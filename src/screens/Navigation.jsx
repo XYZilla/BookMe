@@ -9,6 +9,7 @@ import SignUp from './SignUp';
 import SearchScreen from './SearchScreen';
 import Profile from './Profile';
 import DetailScreen from './DetailScreen';
+import Booking from './Booking';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,8 +42,16 @@ const HomeStack = () => {
 				component={DetailScreen}
 				options={{
 					headerLeftLabelVisible: false,
-					headerTintColor: 'black',
-					headerTitle: 'Детальный просмотр',
+					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
+				name='Booking'
+				component={Booking}
+				options={{
+					headerLeftLabelVisible: false,
+					headerShown: false,
+					presentation: 'modal',
 				}}
 			/>
 		</Stack.Navigator>
@@ -67,6 +76,7 @@ const TabBar = () => {
 					tabBarLabel: 'Домой',
 					tabBarActiveTintColor: '#2E2F3C',
 					tabBarInactiveTintColor: '#b9babb',
+
 					tabBarIcon: ({ color, size }) => (
 						<Octicons
 							name='home'

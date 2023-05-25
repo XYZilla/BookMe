@@ -13,6 +13,7 @@ const Field = ({
 	color = 'bg-secondary',
 	icon,
 	editable = true,
+	autoFocus,
 }) => {
 	return (
 		<StyledView className='relative'>
@@ -29,6 +30,7 @@ const Field = ({
 				autoCorrect={false}
 				autoCapitalize='none'
 				editable={editable}
+				autoFocus={autoFocus}
 			/>
 		</StyledView>
 	);

@@ -15,7 +15,7 @@ const Text = styledComponent.StyledText;
 const SignUp = ({ navigation }) => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const [name, setName] = useState('');
+	const [login, setLogin] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [showAlert, setShowAlert] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -34,7 +34,7 @@ const SignUp = ({ navigation }) => {
 		}
 		try {
 			setLoading(true);
-			await signUp(email, password, name);
+			await signUp(email, password, login);
 			console.log('User signed up successfully');
 			setIsSucces(true);
 		} catch (error) {
@@ -48,7 +48,7 @@ const SignUp = ({ navigation }) => {
 				setErrorMessage('Ошибка регистрации!');
 			}
 		} finally {
-			setName('');
+			setLogin('');
 			setEmail('');
 			setPassword('');
 			setLoading(false);
@@ -95,9 +95,9 @@ const SignUp = ({ navigation }) => {
 					<View className='w-9/12'>
 						<>
 							<Field
-								value={name}
-								onChange={(val) => setName(val)}
-								placeholder='Введите имя'
+								value={login}
+								onChange={(val) => setLogin(val)}
+								placeholder='Введите login'
 								icon={
 									<AntDesign
 										name='user'

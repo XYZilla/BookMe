@@ -10,7 +10,7 @@ const CategoryCard = ({ title, onPress }) => {
 		<View className='flex-1'>
 			<TouchableOpacity onPress={onPress}>
 				<View className='bg-secondary m-1 h-20 rounded-xl justify-center items-center'>
-					<Text>{title}</Text>
+					<Text className='text-center w-24'>{title}</Text>
 				</View>
 			</TouchableOpacity>
 		</View>
