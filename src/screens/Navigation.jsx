@@ -10,6 +10,8 @@ import SearchScreen from './SearchScreen';
 import Profile from './Profile';
 import DetailScreen from './DetailScreen';
 import Booking from './Booking';
+import MyNotes from './MyNotes';
+import HistoryNotes from './HistoryNotes';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,6 +67,7 @@ const TabBar = () => {
 				tabBarStyle: {
 					backgroundColor: 'white',
 					paddingTop: 8,
+					display: 'none',
 				},
 			}}
 		>
@@ -138,6 +141,14 @@ const Navigation = () => {
 					name='Main'
 					component={TabBar}
 					options={{ gestureEnabled: false }}
+				/>
+				<Stack.Screen
+					name='MyNotes'
+					component={MyNotes}
+				/>
+				<Stack.Screen
+					name='HistoryNotes'
+					component={HistoryNotes}
 				/>
 			</Stack.Navigator>
 		</NavigationContainer>

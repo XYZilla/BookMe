@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { styledComponent } from '../../styledComponents';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import {
+	MaterialCommunityIcons,
+	FontAwesome5,
+	AntDesign,
+} from '@expo/vector-icons';
 import Field from '../ui/Field';
 import Button from '../ui/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -115,17 +119,8 @@ const HomeScreen = ({ navigation }) => {
 		loadUserName();
 	}, []);
 
-	const removeUserData = async () => {
-		try {
-			await AsyncStorage.removeItem('userName');
-		} catch (e) {
-			console.log('Error removing user data from AsyncStorage:', e);
-		}
-	};
-
-	const exitHandle = () => {
-		removeUserData();
-		navigation.navigate('SignIn');
+	const toProfile = () => {
+		navigation.navigate('Profile');
 	};
 
 	useEffect(() => {
@@ -179,8 +174,12 @@ const HomeScreen = ({ navigation }) => {
 									Куда хотите записаться?
 								</Text>
 							</View>
-							<TouchableOpacity onPress={exitHandle}>
-								<Text className='font-semibold text-lg'>Выйти</Text>
+							<TouchableOpacity onPress={toProfile}>
+								<AntDesign
+									name='frown'
+									size={50}
+									color='black'
+								/>
 							</TouchableOpacity>
 						</View>
 						<View className='mt-5'>
