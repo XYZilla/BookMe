@@ -1,6 +1,5 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Octicons, AntDesign } from '@expo/vector-icons';
 import SignIn from './SignIn';
@@ -14,7 +13,6 @@ import MyNotes from './MyNotes';
 import HistoryNotes from './HistoryNotes';
 
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
 
 const AuthStack = () => {
 	return (
@@ -138,17 +136,16 @@ const Navigation = () => {
 					component={AuthStack}
 				/>
 				<Stack.Screen
-					name='Main'
-					component={TabBar}
-					options={{ gestureEnabled: false }}
+					name='Home'
+					component={HomeStack}
 				/>
 				<Stack.Screen
-					name='MyNotes'
-					component={MyNotes}
+					name='Search'
+					component={SearchScreen}
 				/>
 				<Stack.Screen
-					name='HistoryNotes'
-					component={HistoryNotes}
+					name='Profile'
+					component={Profile}
 				/>
 			</Stack.Navigator>
 		</NavigationContainer>

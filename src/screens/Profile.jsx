@@ -5,13 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BottomSheet from '../components/BottomSheet';
-import {
-	Button,
-	Dimensions,
-	FlatList,
-	TouchableWithoutFeedback,
-	ViewBase,
-} from 'react-native';
+import { Button, TouchableWithoutFeedback } from 'react-native';
 import Field from '../ui/Field';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase/firebase-config';
@@ -28,33 +22,25 @@ const Profile = ({ navigation }) => {
 	const [isChoosePassword, setIsChoosePassword] = useState(false);
 
 	useEffect(() => {
-		const loadUserName = async () => {
-			const name = await AsyncStorage.getItem('userName');
-			if (name) {
-				setUserName(name);
+		const fetchData = async () => {
+			try {
+				const name = await AsyncStorage.getItem('userName');
+				if (name) {
+					setUserName(name);
+				}
+
+				const usersQuerySnapshot = await getDocs(
+					query(collection(db, 'users'), where('login', '==', name))
+				);
+				const user = usersQuerySnapshot.docs[0].data();
+				setEmail(user.email);
+			} catch (error) {
+				console.log('Error fetching data: ', error);
 			}
 		};
-		loadUserName();
-		getEmail();
+
+		fetchData();
 	}, []);
-
-	const getEmail = async () => {
-		try {
-			const usersQuerySnapshot = await getDocs(
-				query(collection(db, 'users'), where('login', '==', userName))
-			);
-
-			if (usersQuerySnapshot.empty) {
-				console.log('No matching documents.');
-				return null;
-			}
-			const user = usersQuerySnapshot.docs[0].data();
-			setEmail(user.email);
-		} catch (error) {
-			console.log('Error fetching data: ', error);
-			return null;
-		}
-	};
 
 	const openBottomSheet = () => {
 		bottomSheetModalRef.current?.present();
@@ -102,12 +88,14 @@ const Profile = ({ navigation }) => {
 		<TouchableWithoutFeedback onPress={closeBottomSheet}>
 			<View className='flex-1'>
 				<View className='mx-5 mt-16 '>
-					<Octicons
-						name='chevron-left'
-						size={32}
-						color='black'
-						onPress={() => navigation.goBack()}
-					/>
+					<TouchableOpacity onPress={() => navigation.goBack()}>
+						<Octicons
+							name='chevron-left'
+							size={32}
+							color='black'
+						/>
+					</TouchableOpacity>
+
 					<View className='justify-center items-center'>
 						<AntDesign
 							name='frown'
@@ -135,7 +123,7 @@ const Profile = ({ navigation }) => {
 					</TouchableOpacity>
 				</View>
 
-				<View className=' mx-5 mt-10'>
+				<View className='mx-5 mt-10'>
 					<TouchableOpacity onPress={ChangePassword}>
 						<View>
 							<Text className='font-semibold text-lg'>Пароль</Text>

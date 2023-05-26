@@ -22,7 +22,6 @@ const LottieIcon = ({ source, onAnimationFinish }) => {
 			source={source}
 			autoPlay={false}
 			loop={false}
-			progress={0}
 			onAnimationFinish={handleAnimationFinish}
 			className='h-52'
 		/>
