@@ -58,75 +58,6 @@ const HomeStack = () => {
 	);
 };
 
-const TabBar = () => {
-	return (
-		<Tab.Navigator
-			screenOptions={{
-				tabBarStyle: {
-					backgroundColor: 'white',
-					paddingTop: 8,
-					display: 'none',
-				},
-			}}
-		>
-			<Tab.Screen
-				name='HomeScreen'
-				component={HomeStack}
-				options={{
-					headerShown: false,
-					tabBarLabel: 'Домой',
-					tabBarActiveTintColor: '#2E2F3C',
-					tabBarInactiveTintColor: '#b9babb',
-
-					tabBarIcon: ({ color, size }) => (
-						<Octicons
-							name='home'
-							color={color}
-							size={size}
-						/>
-					),
-				}}
-			/>
-
-			<Tab.Screen
-				name='Search'
-				component={SearchScreen}
-				options={{
-					headerShown: false,
-					tabBarLabel: 'Поиск',
-					tabBarActiveTintColor: '#2E2F3C',
-					tabBarInactiveTintColor: '#b9babb',
-					tabBarIcon: ({ color, size }) => (
-						<Octicons
-							name='search'
-							color={color}
-							size={size}
-						/>
-					),
-				}}
-			/>
-
-			<Tab.Screen
-				name='Profile'
-				component={Profile}
-				options={{
-					headerShown: false,
-					tabBarLabel: 'Профиль',
-					tabBarActiveTintColor: '#2E2F3C',
-					tabBarInactiveTintColor: '#b9babb',
-					tabBarIcon: ({ color, size }) => (
-						<AntDesign
-							name='user'
-							size={size}
-							color={color}
-						/>
-					),
-				}}
-			/>
-		</Tab.Navigator>
-	);
-};
-
 const Navigation = () => {
 	return (
 		<NavigationContainer>
@@ -136,7 +67,7 @@ const Navigation = () => {
 					component={AuthStack}
 				/>
 				<Stack.Screen
-					name='Home'
+					name='HomeScreen'
 					component={HomeStack}
 				/>
 				<Stack.Screen
