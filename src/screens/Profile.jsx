@@ -87,15 +87,7 @@ const Profile = ({ navigation }) => {
 	return (
 		<TouchableWithoutFeedback onPress={closeBottomSheet}>
 			<View className='flex-1'>
-				<View className='mx-5 mt-16 '>
-					<TouchableOpacity onPress={() => navigation.goBack()}>
-						<Octicons
-							name='chevron-left'
-							size={32}
-							color='black'
-						/>
-					</TouchableOpacity>
-
+				<View className='mx-5 mt-5 '>
 					<View className='justify-center items-center'>
 						<AntDesign
 							name='frown'

@@ -77,6 +77,35 @@ const Navigation = () => {
 				<Stack.Screen
 					name='Profile'
 					component={Profile}
+					options={{
+						headerShown: true,
+						headerBackTitleVisible: false,
+						title: 'Профиль',
+						headerTintColor: 'black',
+						headerStyle: { backgroundColor: '#F2F2F2' },
+					}}
+				/>
+				<Stack.Screen
+					name='MyNotes'
+					component={MyNotes}
+					options={{
+						headerShown: true,
+						headerBackTitleVisible: false,
+						title: 'Мои записи',
+						headerTintColor: 'black',
+						headerStyle: { backgroundColor: '#F2F2F2' },
+					}}
+				/>
+				<Stack.Screen
+					name='HistoryNotes'
+					component={HistoryNotes}
+					options={{
+						headerShown: true,
+						headerBackTitleVisible: false,
+						title: 'История записей',
+						headerTintColor: 'black',
+						headerStyle: { backgroundColor: '#F2F2F2' },
+					}}
 				/>
 			</Stack.Navigator>
 		</NavigationContainer>
