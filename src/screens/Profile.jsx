@@ -79,6 +79,7 @@ const Profile = ({ navigation }) => {
 	const removeUserData = async () => {
 		try {
 			await AsyncStorage.removeItem('userName');
+			await AsyncStorage.removeItem('password');
 		} catch (e) {
 			console.log('Error removing user data from AsyncStorage:', e);
 		}
@@ -224,6 +225,7 @@ const Profile = ({ navigation }) => {
 				<BottomSheet
 					ref={bottomSheetModalRef}
 					onClose={closeBottomSheet}
+					snapPoint={`70%`}
 				>
 					{isChooseLogin && (
 					<>
