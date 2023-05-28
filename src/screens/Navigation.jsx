@@ -11,6 +11,7 @@ import DetailScreen from './DetailScreen';
 import Booking from './Booking';
 import MyNotes from './MyNotes';
 import HistoryNotes from './HistoryNotes';
+import Favorites from './Favorites';
 
 const Stack = createStackNavigator();
 
@@ -103,6 +104,17 @@ const Navigation = () => {
 					options={{
 						headerShown: true,
 						title: 'История записей',
+						headerTintColor: 'black',
+						headerStyle: { backgroundColor: '#F2F2F2' },
+					}}
+				/>
+				<Stack.Screen
+					name='Favorites'
+					component={Favorites}
+					options={{
+						headerShown: true,
+						headerBackTitleVisible: false,
+						title: 'Избранное',
 						headerTintColor: 'black',
 						headerStyle: { backgroundColor: '#F2F2F2' },
 					}}
