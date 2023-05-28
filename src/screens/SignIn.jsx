@@ -62,8 +62,9 @@ const SignIn = ({ navigation }) => {
 		const checkAuth = async () => {
 			const userName = await AsyncStorage.getItem('userName');
 			const password = await AsyncStorage.getItem('password');
-			setLoading(true);
+
 			if ((userName, password)) {
+				setLoading(true);
 				await signIn(userName, password);
 				navigation.navigate('HomeScreen');
 			}
