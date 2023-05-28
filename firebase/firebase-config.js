@@ -107,3 +107,37 @@ export const signIn = async (emailOrLogin, password) => {
 		throw error;
 	}
 };
+
+export const changePassword = async (currentPassword, newPassword) => {
+    try {
+        const user = auth.currentUser;
+        const credentials = await signInWithEmailAndPassword(
+            auth,
+            user.email,
+            currentPassword
+        );
+        await updatePassword(credentials.user, newPassword);
+        console.log('Password changed successfully');
+    } catch (error) {
+        console.log('Failed to change password:', error.message);
+        throw error;
+    }
+};
+
+export const ChangeUserName = async (currentUser, newUserName) => {
+    try {
+        const user = auth.currentUser;
+        const credentials = await signInWithEmailAndPassword(
+            auth,
+            user.email,
+            currentUser
+        );
+        await updatedUser(credentials.user, newPassword);
+        console.log('Login changed successfully');
+    } catch (error) {
+        console.log('Failed to change login:', error.message);
+        throw error;
+    }
+};
+
+

@@ -22,7 +22,7 @@ const BottomSheet = forwardRef(({ onClose, children }, ref) => {
 			<BottomSheetModal
 				onDismiss={onClose}
 				ref={bottomSheetModalRef}
-				snapPoints={['54%, 50%, 50%']}
+				snapPoints={['75%, 50%, 50%']}
 				index={0}
 			>
 				<View>{children}</View>

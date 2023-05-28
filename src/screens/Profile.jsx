@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, Component } from 'react';
 import { styledComponent } from '../../styledComponents';
+import { ChangeUserName, changePassword } from '../../firebase/firebase-config';
 import { AntDesign, Octicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -71,6 +72,10 @@ const Profile = ({ navigation }) => {
 	const NotesHistory = () => {
 		navigation.navigate('HistoryNotes');
 	};
+	
+	const Favorites = () => {
+		navigation.navigate('Favorites');
+	}
 	const removeUserData = async () => {
 		try {
 			await AsyncStorage.removeItem('userName');
@@ -82,6 +87,27 @@ const Profile = ({ navigation }) => {
 	const exitHandle = () => {
 		removeUserData();
 		navigation.navigate('SignIn');
+	};
+
+// Функция для применения изменения пароля
+//currentPassword - текущий пароль
+//newPassword - новый пароль
+	const applyChangePassword = async (currentPassword, newPassword) => {
+		try {
+			await changePassword(currentPassword, newPassword);
+		} catch (error) {
+			// Обработка ошибки изменения пароля
+			console.log(error);
+		}
+	};
+
+	const applyChangeUserName = async (currentUser, newUserName) => {
+		try {
+			await ChangeUserName(currentUser, newUserName);
+		} catch (error) {
+			// Обработка ошибки изменения пароля
+			console.log(error);
+		}
 	};
 
 	return (
@@ -162,6 +188,21 @@ const Profile = ({ navigation }) => {
 						</View>
 					</TouchableOpacity>
 				</View>
+				<View className='mx-5 mt-10'>
+					<TouchableOpacity onPress={Favorites}>
+						<View className='items-left'>
+							<Text className='font-semibold text-lg'>Избранное</Text>
+							<Text className='text-[#A0A0A0]'>Посмотреть избранные услуги</Text>
+						</View>
+						<View className='items-center justify-end ml-80 -mt-8'>
+							<AntDesign
+								name='right'
+								size={18}
+								color='black'
+							/>
+						</View>
+					</TouchableOpacity>
+				</View>
 
 				<View>
 					<View className='mx-5 items-start'>
@@ -185,26 +226,39 @@ const Profile = ({ navigation }) => {
 					onClose={closeBottomSheet}
 				>
 					{isChooseLogin && (
-						<View className='mx-5 mt-2'>
-							<Field
-								placeholder='Введите новый логин'
-								autoFocus={true}
-							/>
-							<Button title='Продолжить'></Button>
-						</View>
+					<>
+					<Field
+						placeholder='Введите cтарый логин'
+						autoFocus={true}
+					/>
+					<Field
+						placeholder='Введите новый логин'
+						autoFocus={true}
+					/>
+
+					<View className='flex-row justify-center'>
+						<Button title='Назад' onPress={closeBottomSheet} />
+						<Button title='Продолжить' />
+					</View>
+				</>
 					)}
 					{isChoosePassword && (
 						<>
+						<View>
+							<Field
+								placeholder='Введите старый пароль'
+									autoFocus={true}
+							></Field>
 							<Field
 								placeholder='Введите новый пароль'
 								autoFocus={true}
-							/>
-
-							<Button
-								className='mt-2'
-								onPress={closeBottomSheet}
-								title='Продолжить'
-							/>
+							></Field>
+						</View>
+						
+						<View className='flex-row justify-center'>
+							<Button title='Назад' onPress={closeBottomSheet} />
+							<Button title='Продолжить' />
+						</View>
 						</>
 					)}
 				</BottomSheet>
