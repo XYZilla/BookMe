@@ -61,7 +61,9 @@ const HomeStack = () => {
 const Navigation = () => {
 	return (
 		<NavigationContainer>
-			<Stack.Navigator screenOptions={{ headerShown: false }}>
+			<Stack.Navigator
+				screenOptions={{ headerShown: false, headerBackTitleVisible: false }}
+			>
 				<Stack.Screen
 					name='Auth'
 					component={AuthStack}
@@ -69,6 +71,7 @@ const Navigation = () => {
 				<Stack.Screen
 					name='HomeScreen'
 					component={HomeStack}
+					options={{ gestureEnabled: false }}
 				/>
 				<Stack.Screen
 					name='Search'
@@ -79,7 +82,6 @@ const Navigation = () => {
 					component={Profile}
 					options={{
 						headerShown: true,
-						headerBackTitleVisible: false,
 						title: 'Профиль',
 						headerTintColor: 'black',
 						headerStyle: { backgroundColor: '#F2F2F2' },
@@ -90,7 +92,6 @@ const Navigation = () => {
 					component={MyNotes}
 					options={{
 						headerShown: true,
-						headerBackTitleVisible: false,
 						title: 'Мои записи',
 						headerTintColor: 'black',
 						headerStyle: { backgroundColor: '#F2F2F2' },
@@ -101,7 +102,6 @@ const Navigation = () => {
 					component={HistoryNotes}
 					options={{
 						headerShown: true,
-						headerBackTitleVisible: false,
 						title: 'История записей',
 						headerTintColor: 'black',
 						headerStyle: { backgroundColor: '#F2F2F2' },
