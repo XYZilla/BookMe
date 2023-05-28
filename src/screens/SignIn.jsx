@@ -59,13 +59,16 @@ const SignIn = ({ navigation }) => {
 	};
 
 	useEffect(() => {
-		const loadUserName = async () => {
-			const name = await AsyncStorage.getItem('userName');
-			if (name) {
+		const checkAuth = async () => {
+			const userName = await AsyncStorage.getItem('userName');
+			const password = await AsyncStorage.getItem('password');
+			setLoading(true);
+			if ((userName, password)) {
+				await signIn(userName, password);
 				navigation.navigate('HomeScreen');
 			}
 		};
-		loadUserName();
+		checkAuth();
 	}, []);
 
 	const closeAlert = () => {
