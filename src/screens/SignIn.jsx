@@ -1,144 +1,142 @@
-import React, { useEffect, useState } from 'react';
-import { styledComponent } from '../../styledComponents';
-import Field from '../ui/Field';
-import Button from '../ui/Button';
-import { TouchableOpacity, ActivityIndicator } from 'react-native';
-import { signIn } from '../../firebase/firebase-config';
-import { MaterialIcons } from '@expo/vector-icons';
+import { initializeApp } from 'firebase/app';
+import {
+	getAuth,
+	signInWithEmailAndPassword,
+	getUserByLogin,
+	createUserWithEmailAndPassword,
+	updateProfile,
+} from 'firebase/auth';
+import {
+	getFirestore,
+	doc,
+	setDoc,
+	getDocs,
+	query,
+	collection,
+	where,
+} from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Alert from '../components/Alert';
 
-const View = styledComponent.StyledView;
-const Text = styledComponent.StyledText;
-
-const SignIn = ({ navigation }) => {
-	const [emailOrLogin, setEmailOrLogin] = useState('');
-	const [password, setPassword] = useState('');
-	const [loading, setLoading] = useState(false);
-	const [showAlert, setShowAlert] = useState(false);
-	const [errorMessage, setErrorMessage] = useState('');
-
-	const isEmailValid = (email) => {
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailRegex.test(email);
-	};
-
-	const authHandler = async () => {
-		if (
-			(!isEmailValid(emailOrLogin) && !emailOrLogin) ||
-			!password ||
-			password.length < 8
-		) {
-			setShowAlert(true);
-			setErrorMessage('Введите корректные данные!');
-			return;
-		}
-		try {
-			setLoading(true);
-			await signIn(emailOrLogin, password);
-			console.log('User signed in successfully');
-			navigation.navigate('HomeScreen');
-		} catch (error) {
-			console.log('Sign in failed:', error.message);
-			if (
-				error.code === 'auth/user-not-found' ||
-				error.code === 'auth/wrong-password'
-			) {
-				setShowAlert(true);
-				setErrorMessage('Неправильный email или пароль!');
-				return;
-			} else {
-				setShowAlert(true);
-				setErrorMessage('Ошибка входа!');
-			}
-		} finally {
-			setEmailOrLogin('');
-			setPassword('');
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		const loadUserName = async () => {
-			const name = await AsyncStorage.getItem('userName');
-			if (name) {
-				navigation.navigate('HomeScreen');
-			}
-		};
-		loadUserName();
-	}, []);
-
-	const closeAlert = () => {
-		setShowAlert(false);
-	};
-
-	return (
-		<View className='flex-1 justify-center items-center '>
-			{loading ? (
-				<ActivityIndicator size='large' />
-			) : (
-				<>
-					<View className='absolute top-0 w-screen '>
-						{showAlert && (
-							<Alert
-								message={errorMessage}
-								status='error'
-								onClose={closeAlert}
-							/>
-						)}
-					</View>
-
-					<View>
-						<Text className='text-text_dark text-3xl font-bold'>Войти</Text>
-					</View>
-					<View className='w-9/12'>
-						<>
-							<Field
-								value={emailOrLogin}
-								onChange={(val) => setEmailOrLogin(val)}
-								placeholder='Введите email или login'
-								icon={
-									<MaterialIcons
-										name='alternate-email'
-										size={24}
-									/>
-								}
-							/>
-							<Field
-								value={password}
-								onChange={(val) => setPassword(val)}
-								placeholder='Введите пароль'
-								isSecure={true}
-								icon={
-									<MaterialIcons
-										name='lock-outline'
-										size={24}
-									/>
-								}
-							/>
-							<View className='mt-4 mb-5'>
-								<Button
-									title='Погнали'
-									onPress={authHandler}
-								/>
-							</View>
-						</>
-
-						<View className='flex-row justify-between'>
-							<Text className=''>Еще нет аккаунта?</Text>
-							<TouchableOpacity
-								onPress={() =>
-									navigation.navigate('SignUp', setShowAlert(false))
-								}
-							>
-								<Text className='font-semibold'>Зарегистрируйся</Text>
-							</TouchableOpacity>
-						</View>
-					</View>
-				</>
-			)}
-		</View>
-	);
+const firebaseConfig = {
+	apiKey: 'AIzaSyCYNmHo4Br5PT_LzjBbD74582z_O1HH7h4',
+	authDomain: 'bookme-bdef8.firebaseapp.com',
+	projectId: 'bookme-bdef8',
+	storageBucket: 'bookme-bdef8.appspot.com',
+	messagingSenderId: '809619917577',
+	appId: '1:809619917577:web:2f46183a0470feef79e1d8',
 };
 
-export default SignIn;
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore();
+
+export const signUp = async (email, password, displayName) => {
+	try {
+		const userCredential = await createUserWithEmailAndPassword(
+			auth,
+			email,
+			password
+		);
+		const user = userCredential.user;
+		if (user) {
+			console.log('User registered:', user.uid);
+			await updateProfile(user, { displayName });
+
+			// Добавление пользователя в Firestore
+			const userDocRef = doc(db, 'users', user.uid);
+			await setDoc(userDocRef, {
+				login: displayName, // Используем displayName в качестве значения login
+				uid: user.uid,
+				email: user.email,
+			});
+
+			auth.onAuthStateChanged((updatedUser) => {
+				console.log('Updated user:', updatedUser.displayName);
+			});
+		} else {
+			console.log('Registration failed:', error.message);
+		}
+	} catch (error) {
+		console.log('Registration failed:', error.message);
+		throw error;
+	}
+};
+
+export const signIn = async (emailOrLogin, password) => {
+	try {
+		let userCredential;
+		let user;
+
+		// Проверяем, является ли введенное значение email или login
+		if (emailOrLogin.includes('@')) {
+			// Вход по email
+			userCredential = await signInWithEmailAndPassword(
+				auth,
+				emailOrLogin,
+				password
+			);
+			user = userCredential.user;
+		} else {
+			// Вход по login
+			// Находим пользователя по login в Firestore
+			const querySnapshot = await getDocs(
+				query(collection(db, 'users'), where('login', '==', emailOrLogin))
+			);
+			const users = querySnapshot.docs.map((doc) => doc.data());
+			user = users[0]; // Предполагаем, что найден только один пользователь
+
+			if (user) {
+				// Аутентификация пользователя по email и паролю
+				userCredential = await signInWithEmailAndPassword(
+					auth,
+					user.email,
+					password
+				);
+				user = userCredential.user;
+			}
+		}
+
+		if (user) {
+			console.log('User signed in:', user.displayName);
+			await AsyncStorage.setItem('userName', user.displayName);
+			await AsyncStorage.setItem('password', password);
+		} else {
+			throw new Error('Failed to sign in');
+		}
+	} catch (error) {
+		console.log('Sign in failed:', error.message);
+		throw error;
+	}
+};
+
+export const changePassword = async (currentPassword, newPassword) => {
+	try {
+		const user = auth.currentUser;
+		const credentials = await signInWithEmailAndPassword(
+			auth,
+			user.email,
+			currentPassword
+		);
+		await updatePassword(credentials.user, newPassword);
+		console.log('Password changed successfully');
+	} catch (error) {
+		console.log('Failed to change password:', error.message);
+		throw error;
+	}
+};
+
+export const ChangeUserName = async (currentUser, newUserName) => {
+	try {
+		const user = auth.currentUser;
+		const credentials = await signInWithEmailAndPassword(
+			auth,
+			user.email,
+			currentUser
+		);
+		await updatedUser(credentials.user, newPassword);
+		console.log('Login changed successfully');
+	} catch (error) {
+		console.log('Failed to change login:', error.message);
+		throw error;
+	}
+};

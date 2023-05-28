@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app';
 import {
 	getAuth,
 	signInWithEmailAndPassword,
-	getUserByLogin,
 	createUserWithEmailAndPassword,
 	updateProfile,
 } from 'firebase/auth';
@@ -99,6 +98,7 @@ export const signIn = async (emailOrLogin, password) => {
 		if (user) {
 			console.log('User signed in:', user.displayName);
 			await AsyncStorage.setItem('userName', user.displayName);
+			await AsyncStorage.setItem('password', password);
 		} else {
 			throw new Error('Failed to sign in');
 		}
