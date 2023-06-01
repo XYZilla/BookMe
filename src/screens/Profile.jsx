@@ -92,9 +92,7 @@ const Profile = ({ navigation, route }) => {
 	};
 	const removeUserData = async () => {
 		try {
-			await AsyncStorage.removeItem('password');
-			await AsyncStorage.removeItem('email');
-			await AsyncStorage.removeItem('userName');
+			await AsyncStorage.clear();
 			navigation.navigate('SignIn');
 		} catch (e) {
 			console.log('Error removing user data from AsyncStorage:', e);
