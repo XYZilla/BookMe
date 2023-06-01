@@ -5,7 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Button from '../ui/Button';
 import { db, auth } from '../../firebase/firebase-config';
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import uuid from 'react-native-uuid';
 import LottieIcon from '../components/LottieIcon';
 import succesAnimation from '../../animations/success.json';
@@ -23,6 +23,7 @@ const Booking = ({ route, navigation }) => {
 	const currentYear = new Date().getFullYear();
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSuccess, setIsSuccess] = useState(false);
+	const [appointmentExist, setAppointmentExist] = useState(false);
 
 	const fetchData = async () => {
 		try {
@@ -69,21 +70,26 @@ const Booking = ({ route, navigation }) => {
 		fetchData(formattedDate);
 	};
 
-	const appointmentId = uuid.v4();
 	const userId = auth.currentUser.uid;
 
 	const onAppointment = async () => {
 		try {
-			const userDocRef = doc(db, 'appointments', appointmentId);
-			await setDoc(userDocRef, {
-				userId: userId,
-				id: appointmentId,
-				title: title,
-				time: selectedTimeTitle,
-				date: date,
-				active: true,
-			});
-			setIsSuccess(true);
+			const appointmentId = uuid.v4();
+			const appointmentRef = doc(db, 'appointments', appointmentId);
+			const appointmentSnapshot = await getDoc(appointmentRef);
+			if (appointmentSnapshot.exists()) {
+				setAppointmentExist(true);
+			} else {
+				await setDoc(appointmentRef, {
+					userId: userId,
+					id: appointmentId,
+					title: title,
+					time: selectedTimeTitle,
+					date: date,
+					active: true,
+				});
+				setIsSuccess(true);
+			}
 		} catch (error) {
 			setIsSuccess(false);
 		}

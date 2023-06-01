@@ -21,7 +21,7 @@ const Favorites = ({ navigation }) => {
 
 	const fetchData = async () => {
 		const querySnapshot = await getDocs(
-			query(collection(db, 'appointments'), where('userId', '==', userId))
+			query(collection(db, 'favorites'), where('userId', '==', userId))
 		);
 
 		const newData = [];
@@ -55,30 +55,18 @@ const Favorites = ({ navigation }) => {
 	}
 
 	return (
-		<View className='flex-1'>
-			<View className='mx-5 mt-28'>
-				<FlatList
-					data={data}
-					ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
-					renderItem={({ item }) => (
-						<View>
-							<BookingCard
-								title={item.title}
-								time={item.time}
-								date={item.date
-									.toDate()
-									.toLocaleDateString('ru-RU', {
-										weekday: 'long',
-										month: 'long',
-										day: 'numeric',
-									})
-									.replace(',', '')}
-							/>
-						</View>
-					)}
-					keyExtractor={(item) => item.id}
-				/>
-			</View>
+		<View className='flex-1 justify-center items-center text-center'>
+			<Text className='text-2xl font-bold text-left'>Упс...</Text>
+
+			<Text className='text-xl text-left mb-5'>
+				Кажется вы еще ничего не добавили
+			</Text>
+			<MaterialCommunityIcons
+				name='emoticon-sad'
+				size={150}
+				color='black'
+				style={{ opacity: 0.1 }}
+			/>
 		</View>
 	);
 };

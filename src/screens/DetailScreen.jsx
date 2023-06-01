@@ -14,6 +14,7 @@ import {
 	setDoc,
 	where,
 } from 'firebase/firestore';
+
 import uuid from 'react-native-uuid';
 import { auth, db } from '../../firebase/firebase-config';
 
@@ -29,6 +30,7 @@ const DetailScreen = ({ navigation, route }) => {
 	const { desc } = route.params;
 	const { rating } = route.params;
 	const { count_reviews } = route.params;
+	const [appointmentExist, setAppointmentExist] = useState(false);
 
 	const userId = auth.currentUser.uid;
 	const favoriteId = uuid.v4();
@@ -40,6 +42,18 @@ const DetailScreen = ({ navigation, route }) => {
 			where('userId', '==', userId)
 		);
 
+		const appointmentsQuery = query(
+			collection(db, 'appointments'),
+			where('userId', '==', userId),
+			where('title', '==', title)
+		);
+
+		const appointmentsSnapshot = await getDocs(appointmentsQuery);
+
+		if (!appointmentsSnapshot.empty) {
+			setAppointmentExist(true);
+		}
+
 		const favoritesSnapshot = await getDocs(favoritesQuery);
 
 		setLike(!favoritesSnapshot.empty);
@@ -50,13 +64,13 @@ const DetailScreen = ({ navigation, route }) => {
 
 		if (like) {
 			await deleteDoc(favoriteRef);
-			setLike((prevLike) => !prevLike);
+			setLike(!like);
 		} else {
 			await setDoc(favoriteRef, {
 				userId: userId,
 				serviceId: id,
 			});
-			setLike((prevLike) => !prevLike);
+			setLike(!like);
 		}
 
 		fetchData();
@@ -159,7 +173,8 @@ const DetailScreen = ({ navigation, route }) => {
 				<View className='mx-5 mt-5 mb-5'>
 					<Button
 						onPress={onBooking}
-						title='Продолжить'
+						title={appointmentExist ? 'Вы записаны' : 'Продолжить'}
+						disabled={appointmentExist ? true : false}
 					/>
 				</View>
 			</ScrollView>

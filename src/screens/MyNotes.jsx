@@ -79,6 +79,7 @@ const MyNotes = ({ navigation }) => {
 			const documentRef = doc(db, 'appointments', documentId);
 
 			await deleteDoc(documentRef);
+			closeBottomSheet();
 			console.log('Документ успешно удален');
 		} catch (error) {
 			console.error('Ошибка при удалении документа:', error);
