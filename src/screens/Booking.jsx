@@ -16,7 +16,7 @@ const Text = styledComponent.StyledText;
 const Booking = ({ route, navigation }) => {
 	const [times, setTimes] = useState([]);
 	const [selectedTimeId, setSelectedTimeId] = useState(0);
-	const [selectedTimeTitle, setSelectedTimeTitle] = useState(0);
+	const [selectedTimeTitle, setSelectedTimeTitle] = useState('15:00');
 	const [date, setDate] = useState(new Date());
 	const { id } = route.params;
 	const { title } = route.params;
@@ -104,6 +104,8 @@ const Booking = ({ route, navigation }) => {
 			</View>
 		);
 	}
+
+	console.log(selectedTimeTitle);
 
 	return (
 		<View>
