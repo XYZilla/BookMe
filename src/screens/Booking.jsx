@@ -4,8 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Button from '../ui/Button';
-import { db } from '../../firebase/firebase-config';
-import { collection, getDocs } from 'firebase/firestore';
+import { db, auth } from '../../firebase/firebase-config';
+import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import uuid from 'react-native-uuid';
+import LottieIcon from '../components/LottieIcon';
+import succesAnimation from '../../animations/success.json';
 
 const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
@@ -13,10 +16,13 @@ const Text = styledComponent.StyledText;
 const Booking = ({ route, navigation }) => {
 	const [times, setTimes] = useState([]);
 	const [selectedTimeId, setSelectedTimeId] = useState(0);
+	const [selectedTimeTitle, setSelectedTimeTitle] = useState(0);
 	const [date, setDate] = useState(new Date());
 	const { id } = route.params;
+	const { title } = route.params;
 	const currentYear = new Date().getFullYear();
 	const [isLoading, setIsLoading] = useState(true);
+	const [isSuccess, setIsSuccess] = useState(false);
 
 	const fetchData = async () => {
 		try {
@@ -62,6 +68,43 @@ const Booking = ({ route, navigation }) => {
 		setDate(currentDate);
 		fetchData(formattedDate);
 	};
+
+	const appointmentId = uuid.v4();
+	const userId = auth.currentUser.uid;
+
+	const onAppointment = async () => {
+		try {
+			const userDocRef = doc(db, 'appointments', appointmentId);
+			await setDoc(userDocRef, {
+				userId: userId,
+				id: appointmentId,
+				title: title,
+				time: selectedTimeTitle,
+				date: date,
+				active: true,
+			});
+			setIsSuccess(true);
+		} catch (error) {
+			setIsSuccess(false);
+		}
+	};
+
+	const selectedTime = (title, id) => {
+		setSelectedTimeTitle(title);
+		setSelectedTimeId(id);
+	};
+
+	if (isSuccess) {
+		return (
+			<View className='flex-1 justify-center items-center'>
+				<LottieIcon
+					source={succesAnimation}
+					onAnimationFinish={() => navigation.navigate('Home')}
+				/>
+			</View>
+		);
+	}
+
 	return (
 		<View>
 			<View className='mt-2 flex-row justify-between items-center'>
@@ -111,7 +154,7 @@ const Booking = ({ route, navigation }) => {
 									data={times}
 									numColumns={5}
 									renderItem={({ item, index }) => (
-										<TouchableOpacity onPress={() => setSelectedTimeId(index)}>
+										<TouchableOpacity onPress={() => selectedTime(item, index)}>
 											<View
 												className={`${
 													selectedTimeId === index ? 'bg-black' : ''
@@ -143,6 +186,7 @@ const Booking = ({ route, navigation }) => {
 					colors={
 						times.length === 0 ? ['bg-gray-200'] : ['bg-primary', '#EBB209']
 					}
+					onPress={onAppointment}
 				/>
 			</View>
 		</View>

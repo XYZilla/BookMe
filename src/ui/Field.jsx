@@ -22,7 +22,9 @@ const Field = ({
 			</Text>
 
 			<StyledField
-				className={`${color} h-14 mt-3 pl-10 pr-3 rounded-xl text-[18px]`}
+				className={`${color} h-14 mt-3 ${
+					icon === undefined ? 'pl-4' : 'pl-10'
+				} pr-3 rounded-xl text-[18px]`}
 				value={value}
 				secureTextEntry={isSecure}
 				placeholder={placeholder}

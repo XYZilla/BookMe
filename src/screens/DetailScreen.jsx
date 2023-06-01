@@ -3,8 +3,19 @@ import { Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { Rating } from 'react-native-ratings';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../ui/Button';
+import {
+	collection,
+	deleteDoc,
+	doc,
+	getDocs,
+	query,
+	setDoc,
+	where,
+} from 'firebase/firestore';
+import uuid from 'react-native-uuid';
+import { auth, db } from '../../firebase/firebase-config';
 
 const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
@@ -19,13 +30,45 @@ const DetailScreen = ({ navigation, route }) => {
 	const { rating } = route.params;
 	const { count_reviews } = route.params;
 
-	const onLike = () => {
-		setLike(!like);
+	const userId = auth.currentUser.uid;
+	const favoriteId = uuid.v4();
+
+	const fetchData = async () => {
+		const favoritesQuery = query(
+			collection(db, 'favorites'),
+			where('serviceId', '==', id),
+			where('userId', '==', userId)
+		);
+
+		const favoritesSnapshot = await getDocs(favoritesQuery);
+
+		setLike(!favoritesSnapshot.empty);
+	};
+
+	const onLike = async () => {
+		const favoriteRef = doc(db, 'favorites', favoriteId);
+
+		if (like) {
+			await deleteDoc(favoriteRef);
+			setLike((prevLike) => !prevLike);
+		} else {
+			await setDoc(favoriteRef, {
+				userId: userId,
+				serviceId: id,
+			});
+			setLike((prevLike) => !prevLike);
+		}
+
+		fetchData();
 	};
 
 	const onBooking = () => {
-		navigation.navigate('Booking', { id });
+		navigation.navigate('Booking', { id, title });
 	};
+
+	useEffect(() => {
+		fetchData();
+	}, []);
 
 	return (
 		<View className='flex-1'>

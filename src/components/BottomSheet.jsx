@@ -1,8 +1,8 @@
-import { useRef, useImperativeHandle, forwardRef } from 'react';
-import { View } from 'react-native';
+import { useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 import {
 	BottomSheetModal,
 	BottomSheetModalProvider,
+	BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
 
 const BottomSheet = forwardRef(
@@ -18,6 +18,18 @@ const BottomSheet = forwardRef(
 			},
 		}));
 
+		const renderBackdrop = useCallback(
+			(props) => (
+				<BottomSheetBackdrop
+					{...props}
+					disappearsOnIndex={-1}
+					appearsOnIndex={1}
+					opacity={0.8}
+				/>
+			),
+			[]
+		);
+
 		return (
 			<BottomSheetModalProvider>
 				<BottomSheetModal
@@ -25,8 +37,9 @@ const BottomSheet = forwardRef(
 					ref={bottomSheetModalRef}
 					snapPoints={[`${snapPoint}%, ${snapPoint}%, ${snapPoint}%`]}
 					index={0}
+					backdropComponent={renderBackdrop}
 				>
-					<View>{children}</View>
+					{children}
 				</BottomSheetModal>
 			</BottomSheetModalProvider>
 		);

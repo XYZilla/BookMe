@@ -8,7 +8,7 @@ const Button = ({
 	onPress,
 	disabled = false,
 	title,
-	colors = ['bg-primary', '#EBB209'],
+	colors = ['bg-primary', '#EBB209', 'text-text_dark'],
 }) => {
 	return (
 		<StyledButton
@@ -17,7 +17,7 @@ const Button = ({
 			onPress={onPress}
 			disabled={disabled}
 		>
-			<Text className='text-text_dark text-center text-lg font-semibold'>
+			<Text className={`${colors[2]} text-center text-lg font-semibold`}>
 				{title}
 			</Text>
 		</StyledButton>

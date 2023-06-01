@@ -11,16 +11,18 @@ import Field from '../ui/Field';
 import Button from '../ui/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import BottomSheet from '../components/BottomSheet';
-import {
-	Dimensions,
-	FlatList,
-	TouchableWithoutFeedback,
-	ActivityIndicator,
-} from 'react-native';
+import { Dimensions, FlatList, ActivityIndicator, Image } from 'react-native';
 import CategoryCard from '../components/CategoryCard';
 import ServiceCard from '../components/ServiceCard';
 import Alert from '../components/Alert';
-import { collection, getDocs } from 'firebase/firestore';
+import {
+	collection,
+	doc,
+	getDocs,
+	onSnapshot,
+	query,
+	where,
+} from 'firebase/firestore';
 import { db } from '../../firebase/firebase-config';
 
 const View = styledComponent.StyledView;
@@ -38,6 +40,11 @@ const HomeScreen = ({ navigation }) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [servicesData, setServicesData] = useState([]);
 	const [categoriesData, setCategoriesData] = useState([]);
+
+	const loadUserName = async () => {
+		const login = await AsyncStorage.getItem('userName');
+		setUserName(login);
+	};
 
 	const currentTime = new Date();
 	const currentYear = new Date().getFullYear();
@@ -109,158 +116,165 @@ const HomeScreen = ({ navigation }) => {
 
 	const greeting = `${getGreeting()}, ${userName}!`;
 
-	useEffect(() => {
-		const loadUserName = async () => {
-			const name = await AsyncStorage.getItem('userName');
-			if (name) {
-				setUserName(name);
+	const fetchData = async () => {
+		try {
+			const servicesQuerySnapshot = await getDocs(collection(db, 'services'));
+			const newServicesData = [];
+
+			servicesQuerySnapshot.forEach((doc) => {
+				newServicesData.push(doc.data());
+			});
+
+			const categoriesQuerySnapshot = await getDocs(
+				collection(db, 'categories')
+			);
+			const newCategoriesData = [];
+			categoriesQuerySnapshot.forEach((doc) => {
+				newCategoriesData.push(doc.data());
+			});
+
+			const email = await AsyncStorage.getItem('email');
+
+			if (email) {
+				const querySnapshot = await getDocs(
+					query(collection(db, 'users'), where('email', '==', email))
+				);
+				const user = querySnapshot.docs[0].data();
+				setUserName(user.login);
+
+				// Подписка на обновления поля 'login'
+				const userId = querySnapshot.docs[0].id;
+				const userDocRef = doc(db, 'users', userId);
+				onSnapshot(userDocRef, (doc) => {
+					const updatedUser = doc.data();
+					setUserName(updatedUser.login);
+				});
 			}
-		};
-		loadUserName();
-	}, []);
+
+			setServicesData(newServicesData);
+			setCategoriesData(newCategoriesData);
+			setIsLoading(false);
+		} catch (error) {
+			console.log('Error fetching data: ', error);
+		}
+	};
 
 	const toProfile = () => {
-		navigation.navigate('Profile');
+		navigation.navigate('Profile', { login: userName });
 	};
 
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const servicesQuerySnapshot = await getDocs(collection(db, 'services'));
-				const newServicesData = [];
-
-				servicesQuerySnapshot.forEach((doc) => {
-					newServicesData.push(doc.data());
-				});
-
-				const categoriesQuerySnapshot = await getDocs(
-					collection(db, 'categories')
-				);
-				const newCategoriesData = [];
-				categoriesQuerySnapshot.forEach((doc) => {
-					newCategoriesData.push(doc.data());
-				});
-
-				setServicesData(newServicesData);
-				setCategoriesData(newCategoriesData);
-				setIsLoading(false);
-			} catch (error) {
-				console.log('Error fetching data: ', error);
-			}
-		};
-
+		loadUserName();
 		fetchData();
 	}, []);
 
 	return (
 		<View className='flex-1'>
-			<TouchableWithoutFeedback onPress={closeBottomSheet}>
-				<View>
-					<View className='absolute top-0 w-screen z-10'>
-						{showAlert && (
-							<Alert
-								message={errorMessage}
-								status='error'
-								onClose={closeAlert}
+			<View>
+				<View className='absolute top-0 w-screen z-10'>
+					{showAlert && (
+						<Alert
+							message={errorMessage}
+							status='error'
+							onClose={closeAlert}
+						/>
+					)}
+				</View>
+
+				<View className='mx-5 mt-16'>
+					<View className='flex-row justify-between'>
+						<View className='w-9/12'>
+							<Text className='font-normal text-2xl mb-1'>{greeting}</Text>
+							<Text className='font-bold text-4xl'>
+								Куда хотите записаться?
+							</Text>
+						</View>
+						<TouchableOpacity onPress={toProfile}>
+							<Image
+								source={require('../images/avatar.png')}
+								className='w-20 h-20 rounded-full object-cover'
 							/>
-						)}
+						</TouchableOpacity>
 					</View>
+					<View className='mt-5'>
+						<TouchableOpacity onPress={openServiceChooseHandler}>
+							<Field
+								placeholder='Выберите категорию'
+								editable={false}
+								value={selectedCategory?.name ?? ''}
+								icon={
+									<MaterialCommunityIcons
+										name='widgets-outline'
+										size={24}
+									/>
+								}
+							/>
+						</TouchableOpacity>
 
-					<View className='mx-5 mt-16'>
-						<View className='flex-row justify-between'>
-							<View className='w-9/12'>
-								<Text className='font-normal text-2xl mb-1'>{greeting}</Text>
-								<Text className='font-bold text-4xl'>
-									Куда хотите записаться?
-								</Text>
-							</View>
-							<TouchableOpacity onPress={toProfile}>
-								<AntDesign
-									name='frown'
-									size={50}
-									color='black'
-								/>
-							</TouchableOpacity>
+						<TouchableOpacity onPress={openDatePickerHandler}>
+							<Field
+								value={formattedDate}
+								placeholder='Выберите дату'
+								editable={false}
+								icon={
+									<FontAwesome5
+										name='calendar-alt'
+										size={24}
+									/>
+								}
+							/>
+						</TouchableOpacity>
+
+						<View className='mt-4 mb-5'>
+							<Button
+								title='Найти'
+								onPress={handleSearch}
+							/>
 						</View>
-						<View className='mt-5'>
-							<TouchableOpacity onPress={openServiceChooseHandler}>
-								<Field
-									placeholder='Выберите категорию'
-									editable={false}
-									value={selectedCategory?.name ?? ''}
-									icon={
-										<MaterialCommunityIcons
-											name='widgets-outline'
-											size={24}
-										/>
-									}
-								/>
-							</TouchableOpacity>
-
-							<TouchableOpacity onPress={openDatePickerHandler}>
-								<Field
-									value={formattedDate}
-									placeholder='Выберите дату'
-									editable={false}
-									icon={
-										<FontAwesome5
-											name='calendar-alt'
-											size={24}
-										/>
-									}
-								/>
-							</TouchableOpacity>
-
-							<View className='mt-4 mb-5'>
-								<Button
-									title='Найти'
-									onPress={handleSearch}
-								/>
-							</View>
-						</View>
-					</View>
-					<View className='h-screen'>
-						<Text className='text-xl font-semibold mb-2 ml-5'>Популярные</Text>
-						{isLoading ? (
-							<View className='justify-center items-center mt-5'>
-								<ActivityIndicator size='large' />
-							</View>
-						) : (
-							<View>
-								<FlatList
-									data={servicesData}
-									horizontal
-									pagingEnabled
-									showsHorizontalScrollIndicator={false}
-									snapToInterval={Dimensions.get('window').width / 1.4 + 10}
-									contentContainerStyle={{ paddingHorizontal: 19.5 }}
-									ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
-									renderItem={({ item }) => (
-										<View>
-											<ServiceCard
-												title={item.name}
-												image={item.image_url}
-												onPress={() =>
-													navigation.navigate('Detail', {
-														id: item.id,
-														title: item.name,
-														image: item.image_url,
-														address: item.address,
-														desc: item.desc,
-														rating: item.rating,
-														count_reviews: item.count_reviews,
-													})
-												}
-											/>
-										</View>
-									)}
-									keyExtractor={(item) => item.id}
-								/>
-							</View>
-						)}
 					</View>
 				</View>
-			</TouchableWithoutFeedback>
+				<View className='h-screen'>
+					<Text className='text-xl font-semibold mb-2 ml-5'>Популярные</Text>
+					{isLoading ? (
+						<View className='justify-center items-center mt-5'>
+							<ActivityIndicator size='large' />
+						</View>
+					) : (
+						<View>
+							<FlatList
+								data={servicesData}
+								horizontal
+								pagingEnabled
+								showsHorizontalScrollIndicator={false}
+								snapToInterval={Dimensions.get('window').width / 1.4 + 10}
+								contentContainerStyle={{ paddingHorizontal: 19.5 }}
+								ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+								renderItem={({ item }) => (
+									<View>
+										<ServiceCard
+											title={item.name}
+											image={item.image_url}
+											onPress={() =>
+												navigation.navigate('Detail', {
+													id: item.id,
+													title: item.name,
+													image: item.image_url,
+													address: item.address,
+													desc: item.desc,
+													rating: item.rating,
+													count_reviews: item.count_reviews,
+												})
+											}
+										/>
+									</View>
+								)}
+								keyExtractor={(item) => item.id}
+							/>
+						</View>
+					)}
+				</View>
+			</View>
+
 			<BottomSheet
 				ref={bottomSheetModalRef}
 				onClose={closeBottomSheet}

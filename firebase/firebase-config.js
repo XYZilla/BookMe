@@ -4,6 +4,7 @@ import {
 	signInWithEmailAndPassword,
 	createUserWithEmailAndPassword,
 	updateProfile,
+	updatePassword,
 } from 'firebase/auth';
 import {
 	getFirestore,
@@ -29,7 +30,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore();
 
-export const signUp = async (email, password, displayName) => {
+export const signUp = async (email, password, login) => {
 	try {
 		const userCredential = await createUserWithEmailAndPassword(
 			auth,
@@ -39,18 +40,13 @@ export const signUp = async (email, password, displayName) => {
 		const user = userCredential.user;
 		if (user) {
 			console.log('User registered:', user.uid);
-			await updateProfile(user, { displayName });
 
 			// Добавление пользователя в Firestore
 			const userDocRef = doc(db, 'users', user.uid);
 			await setDoc(userDocRef, {
-				login: displayName, // Используем displayName в качестве значения login
+				login: login,
 				uid: user.uid,
 				email: user.email,
-			});
-
-			auth.onAuthStateChanged((updatedUser) => {
-				console.log('Updated user:', updatedUser.displayName);
 			});
 		} else {
 			console.log('Registration failed:', error.message);
@@ -85,6 +81,8 @@ export const signIn = async (emailOrLogin, password) => {
 			user = users[0]; // Предполагаем, что найден только один пользователь
 
 			if (user) {
+				await AsyncStorage.setItem('userName', user.login);
+
 				// Аутентификация пользователя по email и паролю
 				userCredential = await signInWithEmailAndPassword(
 					auth,
@@ -96,8 +94,8 @@ export const signIn = async (emailOrLogin, password) => {
 		}
 
 		if (user) {
-			console.log('User signed in:', user.displayName);
-			await AsyncStorage.setItem('userName', user.displayName);
+			console.log('User signed in:', emailOrLogin);
+			await AsyncStorage.setItem('email', user.email);
 			await AsyncStorage.setItem('password', password);
 		} else {
 			throw new Error('Failed to sign in');
@@ -109,35 +107,17 @@ export const signIn = async (emailOrLogin, password) => {
 };
 
 export const changePassword = async (currentPassword, newPassword) => {
-    try {
-        const user = auth.currentUser;
-        const credentials = await signInWithEmailAndPassword(
-            auth,
-            user.email,
-            currentPassword
-        );
-        await updatePassword(credentials.user, newPassword);
-        console.log('Password changed successfully');
-    } catch (error) {
-        console.log('Failed to change password:', error.message);
-        throw error;
-    }
+	try {
+		const user = auth.currentUser;
+		const credentials = await signInWithEmailAndPassword(
+			auth,
+			user.email,
+			currentPassword
+		);
+		await updatePassword(credentials.user, newPassword);
+		console.log('Password changed successfully');
+	} catch (error) {
+		console.log('Failed to change password:', error.message);
+		throw error;
+	}
 };
-
-export const ChangeUserName = async (currentUser, newUserName) => {
-    try {
-        const user = auth.currentUser;
-        const credentials = await signInWithEmailAndPassword(
-            auth,
-            user.email,
-            currentUser
-        );
-        await updatedUser(credentials.user, newPassword);
-        console.log('Login changed successfully');
-    } catch (error) {
-        console.log('Failed to change login:', error.message);
-        throw error;
-    }
-};
-
-

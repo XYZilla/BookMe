@@ -85,7 +85,7 @@ const Navigation = () => {
 						headerShown: true,
 						title: 'Профиль',
 						headerTintColor: 'black',
-						headerStyle: { backgroundColor: '#F2F2F2' },
+						headerTransparent: true,
 					}}
 				/>
 				<Stack.Screen
@@ -95,7 +95,7 @@ const Navigation = () => {
 						headerShown: true,
 						title: 'Мои записи',
 						headerTintColor: 'black',
-						headerStyle: { backgroundColor: '#F2F2F2' },
+						headerTransparent: true,
 					}}
 				/>
 				<Stack.Screen
@@ -105,7 +105,7 @@ const Navigation = () => {
 						headerShown: true,
 						title: 'История записей',
 						headerTintColor: 'black',
-						headerStyle: { backgroundColor: '#F2F2F2' },
+						headerTransparent: true,
 					}}
 				/>
 				<Stack.Screen
@@ -116,7 +116,7 @@ const Navigation = () => {
 						headerBackTitleVisible: false,
 						title: 'Избранное',
 						headerTintColor: 'black',
-						headerStyle: { backgroundColor: '#F2F2F2' },
+						headerTransparent: true,
 					}}
 				/>
 			</Stack.Navigator>

@@ -2,7 +2,6 @@ import { Dimensions, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { styledComponent } from '../../styledComponents';
 
-const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
 
 const screenWidth = Dimensions.get('window').width;
