@@ -55,7 +55,7 @@ const DetailScreen = ({ navigation, route }) => {
 		}
 
 		// Проверяем, есть ли услуга в избранном для текущего пользователя
-		const favoriteServiceRef = doc(db, 'favorites', id);
+		const favoriteServiceRef = doc(db, 'favorites', userId);
 		const favoriteServiceSnapshot = await getDoc(favoriteServiceRef);
 
 		if (favoriteServiceSnapshot.exists()) {
@@ -74,7 +74,7 @@ const DetailScreen = ({ navigation, route }) => {
 		};
 
 		// Получаем ссылку на документ в коллекции 'favorites' с идентификатором, равным serviceId
-		const favoriteServiceRef = doc(db, 'favorites', id);
+		const favoriteServiceRef = doc(db, 'favorites', userId);
 
 		// Если услуга уже в избранном, удаляем ее из коллекции 'favorites'
 		if (like) {

@@ -4,6 +4,7 @@ import {
 	collection,
 	getDocs,
 	onSnapshot,
+	orderBy,
 	query,
 	where,
 } from 'firebase/firestore';
@@ -21,7 +22,12 @@ const HistoryNotes = ({ navigation }) => {
 
 	const fetchData = async () => {
 		const querySnapshot = await getDocs(
-			query(collection(db, 'appointments'), where('userId', '==', userId))
+			query(
+				collection(db, 'appointments'),
+				where('userId', '==', userId),
+				orderBy('time', 'asc'),
+				orderBy('date', 'asc')
+			)
 		);
 
 		const newData = [];

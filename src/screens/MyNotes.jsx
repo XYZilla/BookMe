@@ -6,6 +6,7 @@ import {
 	doc,
 	getDocs,
 	onSnapshot,
+	orderBy,
 	query,
 	where,
 } from 'firebase/firestore';
@@ -57,7 +58,9 @@ const MyNotes = ({ navigation }) => {
 			query(
 				collection(db, 'appointments'),
 				where('active', '==', true),
-				where('userId', '==', userId)
+				where('userId', '==', userId),
+				orderBy('time', 'asc'),
+				orderBy('date', 'asc')
 			),
 			(snapshot) => {
 				const newData = [];
@@ -67,6 +70,28 @@ const MyNotes = ({ navigation }) => {
 				setData(newData);
 			}
 		);
+
+		const currentDate = new Date();
+
+		// Проход по каждому элементу в data
+		data.forEach(async (appointment) => {
+			const appointmentDate = appointment.date.toDate();
+
+			// Проверка на равенство даты и времени
+			if (currentDate.getTime() === appointmentDate.getTime()) {
+				try {
+					// Создайте ссылку на документ с использованием id
+					const appointmentRef = doc(db, 'appointments', appointment.id);
+
+					// Обновление поля "active" в документе на false
+					await updateDoc(appointmentRef, { active: false });
+
+					console.log('Поле "active" обновлено');
+				} catch (error) {
+					console.error('Ошибка при обновлении поля "active":', error);
+				}
+			}
+		});
 
 		return () => unsubscribe();
 	}, []);

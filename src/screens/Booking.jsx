@@ -16,7 +16,7 @@ const Text = styledComponent.StyledText;
 const Booking = ({ route, navigation }) => {
 	const [times, setTimes] = useState([]);
 	const [selectedTimeId, setSelectedTimeId] = useState(0);
-	const [selectedTimeTitle, setSelectedTimeTitle] = useState('15:00');
+	const [selectedTimeTitle, setSelectedTimeTitle] = useState();
 	const [date, setDate] = useState(new Date());
 	const { id } = route.params;
 	const { title } = route.params;
@@ -84,7 +84,7 @@ const Booking = ({ route, navigation }) => {
 					userId: userId,
 					id: appointmentId,
 					title: title,
-					time: selectedTimeTitle,
+					time: selectedTimeTitle || times[0],
 					date: date,
 					active: true,
 				});
