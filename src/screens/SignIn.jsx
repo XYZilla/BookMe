@@ -67,7 +67,7 @@ const SignIn = ({ navigation }) => {
 				setLoading(true);
 
 				await signIn(email, password);
-				navigation.navigate('HomeScreen');
+				navigation.navigate('Home');
 			}
 		};
 		checkAuth();

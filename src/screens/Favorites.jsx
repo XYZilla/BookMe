@@ -1,25 +1,28 @@
 import { styledComponent } from '../../styledComponents';
-import BookingCard from '../components/BookingCard';
 import {
 	collection,
 	getDocs,
 	onSnapshot,
 	query,
 	where,
+	doc,
+	getDoc,
 } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase-config';
 import { useEffect, useState } from 'react';
 import { FlatList } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import FavoriteCard from '../components/FavoriteCard';
 
 const View = styledComponent.StyledView;
 const Text = styledComponent.StyledText;
 
 const Favorites = ({ navigation }) => {
-	const [data, setData] = useState([]);
+	const [favorites, setFavorites] = useState([]);
+	const [services, setServices] = useState([]);
 	const userId = auth.currentUser.uid;
 
-	const fetchData = async () => {
+	const fetchFavorites = async () => {
 		const querySnapshot = await getDocs(
 			query(collection(db, 'favorites'), where('userId', '==', userId))
 		);
@@ -29,20 +32,51 @@ const Favorites = ({ navigation }) => {
 			newData.push(doc.data());
 		});
 
-		setData(newData);
+		setFavorites(newData);
+	};
+
+	const fetchServices = async () => {
+		const serviceData = [];
+
+		for (const favorite of favorites) {
+			const serviceDoc = await getDoc(doc(db, 'services', favorite.serviceId));
+			if (serviceDoc.exists()) {
+				serviceData.push(serviceDoc.data());
+			}
+		}
+
+		setServices(serviceData);
 	};
 
 	useEffect(() => {
-		fetchData();
+		const unsubscribe = onSnapshot(
+			query(collection(db, 'favorites'), where('userId', '==', userId)),
+			(snapshot) => {
+				const newData = [];
+				snapshot.forEach((doc) => {
+					newData.push(doc.data());
+				});
+				setFavorites(newData);
+			}
+		);
+
+		return () => unsubscribe();
 	}, []);
 
-	if (data.length === 0) {
+	useEffect(() => {
+		fetchServices();
+	}, [favorites]);
+
+	useEffect(() => {
+		fetchFavorites();
+	}, []);
+
+	if (services.length === 0) {
 		return (
 			<View className='flex-1 justify-center items-center text-center'>
 				<Text className='text-2xl font-bold text-left'>Упс...</Text>
-
 				<Text className='text-xl text-left mb-5'>
-					Кажется вы еще ничего не добавили
+					Кажется, вы еще ничего не добавили
 				</Text>
 				<MaterialCommunityIcons
 					name='emoticon-sad'
@@ -56,17 +90,29 @@ const Favorites = ({ navigation }) => {
 
 	return (
 		<View className='flex-1 justify-center items-center text-center'>
-			<Text className='text-2xl font-bold text-left'>Упс...</Text>
-
-			<Text className='text-xl text-left mb-5'>
-				Кажется вы еще ничего не добавили
-			</Text>
-			<MaterialCommunityIcons
-				name='emoticon-sad'
-				size={150}
-				color='black'
-				style={{ opacity: 0.1 }}
-			/>
+			<View className='mt-[100px]'>
+				<FlatList
+					data={services}
+					keyExtractor={(item) => item.id}
+					renderItem={({ item }) => (
+						<FavoriteCard
+							title={item.name}
+							image={item.image_url}
+							onPress={() =>
+								navigation.navigate('Detail', {
+									id: item.id,
+									title: item.name,
+									image: item.image_url,
+									address: item.address,
+									desc: item.desc,
+									rating: item.rating,
+									count_reviews: item.count_reviews,
+								})
+							}
+						/>
+					)}
+				/>
+			</View>
 		</View>
 	);
 };

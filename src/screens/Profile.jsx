@@ -90,6 +90,7 @@ const Profile = ({ navigation, route }) => {
 	const Favorites = () => {
 		navigation.navigate('Favorites');
 	};
+
 	const removeUserData = async () => {
 		try {
 			await AsyncStorage.clear();

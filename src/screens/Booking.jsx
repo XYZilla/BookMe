@@ -111,8 +111,6 @@ const Booking = ({ route, navigation }) => {
 		);
 	}
 
-	console.log(selectedTimeTitle);
-
 	return (
 		<View>
 			<View className='mt-2 flex-row justify-between items-center'>

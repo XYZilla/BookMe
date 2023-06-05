@@ -1,5 +1,10 @@
 import { styledComponent } from '../../styledComponents';
-import { Image, TouchableOpacity, ScrollView } from 'react-native';
+import {
+	Image,
+	TouchableOpacity,
+	ScrollView,
+	ActivityIndicator,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { Rating } from 'react-native-ratings';
@@ -9,6 +14,7 @@ import {
 	collection,
 	deleteDoc,
 	doc,
+	getDoc,
 	getDocs,
 	query,
 	setDoc,
@@ -30,18 +36,12 @@ const DetailScreen = ({ navigation, route }) => {
 	const { desc } = route.params;
 	const { rating } = route.params;
 	const { count_reviews } = route.params;
+	const [isLoading, setIsLoading] = useState(true);
 	const [appointmentExist, setAppointmentExist] = useState(false);
 
 	const userId = auth.currentUser.uid;
-	const favoriteId = uuid.v4();
 
 	const fetchData = async () => {
-		const favoritesQuery = query(
-			collection(db, 'favorites'),
-			where('serviceId', '==', id),
-			where('userId', '==', userId)
-		);
-
 		const appointmentsQuery = query(
 			collection(db, 'appointments'),
 			where('userId', '==', userId),
@@ -54,26 +54,45 @@ const DetailScreen = ({ navigation, route }) => {
 			setAppointmentExist(true);
 		}
 
-		const favoritesSnapshot = await getDocs(favoritesQuery);
+		// Проверяем, есть ли услуга в избранном для текущего пользователя
+		const favoriteServiceRef = doc(db, 'favorites', id);
+		const favoriteServiceSnapshot = await getDoc(favoriteServiceRef);
 
-		setLike(!favoritesSnapshot.empty);
+		if (favoriteServiceSnapshot.exists()) {
+			setLike(true);
+		}
+		setIsLoading(false);
 	};
 
 	const onLike = async () => {
-		const favoriteRef = doc(db, 'favorites', favoriteId);
+		setLike(!like);
 
+		// Создаем объект, представляющий информацию об избранной услуге
+		const favoriteService = {
+			serviceId: id,
+			userId: userId,
+		};
+
+		// Получаем ссылку на документ в коллекции 'favorites' с идентификатором, равным serviceId
+		const favoriteServiceRef = doc(db, 'favorites', id);
+
+		// Если услуга уже в избранном, удаляем ее из коллекции 'favorites'
 		if (like) {
-			await deleteDoc(favoriteRef);
-			setLike(!like);
+			try {
+				await deleteDoc(favoriteServiceRef);
+				console.log('Услуга удалена из избранного');
+			} catch (error) {
+				console.error('Ошибка при удалении услуги из избранного:', error);
+			}
 		} else {
-			await setDoc(favoriteRef, {
-				userId: userId,
-				serviceId: id,
-			});
-			setLike(!like);
+			// Если услуга не в избранном, добавляем ее в коллекцию 'favorites'
+			try {
+				await setDoc(favoriteServiceRef, favoriteService);
+				console.log('Услуга добавлена в избранное');
+			} catch (error) {
+				console.error('Ошибка при добавлении услуги в избранное:', error);
+			}
 		}
-
-		fetchData();
 	};
 
 	const onBooking = () => {
@@ -83,6 +102,14 @@ const DetailScreen = ({ navigation, route }) => {
 	useEffect(() => {
 		fetchData();
 	}, []);
+
+	if (isLoading) {
+		return (
+			<View className='flex-1 justify-center items-center'>
+				<ActivityIndicator size='large' />
+			</View>
+		);
+	}
 
 	return (
 		<View className='flex-1'>
@@ -133,6 +160,7 @@ const DetailScreen = ({ navigation, route }) => {
 						imageSize={20} // Size of the rating icon
 						startingValue={rating} // Initial rating value
 						onFinishRating={(rating) => console.log(rating)} // Callback function when a rating is selected
+						readonly // Prevents the user from changing the rating value
 					/>
 
 					<Text className='text-lg font-medium ml-1 mt-[-5px]'>

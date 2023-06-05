@@ -9,7 +9,7 @@ const Text = styledComponent.StyledText;
 const BookingCard = ({ title, date, time, onPress }) => {
 	return (
 		<TouchableOpacity onLongPress={onPress}>
-			<View className='bg-white h-20 rounded-2xl mb-5'>
+			<View className='bg-white h-20 rounded-2xl mt-5'>
 				<View className='flex-row justify-between'>
 					<View>
 						<View className='justify-start mx-5 mt-2'>

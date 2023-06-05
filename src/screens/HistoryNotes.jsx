@@ -68,7 +68,7 @@ const HistoryNotes = ({ navigation }) => {
 
 	return (
 		<View className='flex-1'>
-			<View className='mx-5 mt-28'>
+			<View className='mt-[100px] mx-5'>
 				<FlatList
 					data={data}
 					ItemSeparatorComponent={() => <View style={{ width: 10 }} />}

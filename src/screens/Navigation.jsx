@@ -30,35 +30,6 @@ const AuthStack = () => {
 	);
 };
 
-const HomeStack = () => {
-	return (
-		<Stack.Navigator>
-			<Stack.Screen
-				name='Home'
-				component={HomeScreen}
-				options={{ headerShown: false }}
-			/>
-			<Stack.Screen
-				name='Detail'
-				component={DetailScreen}
-				options={{
-					headerLeftLabelVisible: false,
-					headerShown: false,
-				}}
-			/>
-			<Stack.Screen
-				name='Booking'
-				component={Booking}
-				options={{
-					headerLeftLabelVisible: false,
-					headerShown: false,
-					presentation: 'modal',
-				}}
-			/>
-		</Stack.Navigator>
-	);
-};
-
 const Navigation = () => {
 	return (
 		<NavigationContainer>
@@ -70,13 +41,36 @@ const Navigation = () => {
 					component={AuthStack}
 				/>
 				<Stack.Screen
-					name='HomeScreen'
-					component={HomeStack}
-					options={{ gestureEnabled: false }}
+					name='Home'
+					component={HomeScreen}
+					options={{ headerShown: false, gestureEnabled: false }}
+				/>
+				<Stack.Screen
+					name='Detail'
+					component={DetailScreen}
+					options={{
+						headerLeftLabelVisible: false,
+						headerShown: false,
+					}}
+				/>
+				<Stack.Screen
+					name='Booking'
+					component={Booking}
+					options={{
+						headerLeftLabelVisible: false,
+						headerShown: false,
+						presentation: 'modal',
+					}}
 				/>
 				<Stack.Screen
 					name='Search'
 					component={SearchScreen}
+					options={{
+						headerShown: true,
+						title: 'Поиск',
+						headerTintColor: 'black',
+						headerTransparent: true,
+					}}
 				/>
 				<Stack.Screen
 					name='Profile'

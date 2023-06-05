@@ -2,11 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { styledComponent } from '../../styledComponents';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-	MaterialCommunityIcons,
-	FontAwesome5,
-	AntDesign,
-} from '@expo/vector-icons';
+import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import Field from '../ui/Field';
 import Button from '../ui/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -91,8 +87,16 @@ const HomeScreen = ({ navigation }) => {
 			setErrorMessage('Выберите услугу!');
 			return;
 		}
+
+		const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+			.toString()
+			.padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+
+		const { id } = selectedCategory;
+
 		setSelectedCategory(null);
-		navigation.navigate('Search');
+		setDate(new Date());
+		navigation.navigate('Search', { categoryId: id, date: formattedDate });
 		setShowAlert(false);
 	};
 
