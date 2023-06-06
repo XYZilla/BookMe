@@ -40,6 +40,7 @@ const DetailScreen = ({ navigation, route }) => {
 	const [appointmentExist, setAppointmentExist] = useState(false);
 
 	const userId = auth.currentUser.uid;
+	const serviceId = id;
 
 	const fetchData = async () => {
 		const appointmentsQuery = query(
@@ -55,7 +56,7 @@ const DetailScreen = ({ navigation, route }) => {
 		}
 
 		// Проверяем, есть ли услуга в избранном для текущего пользователя
-		const favoriteServiceRef = doc(db, 'favorites', userId);
+		const favoriteServiceRef = doc(db, 'favorites', `${userId}_${serviceId}`);
 		const favoriteServiceSnapshot = await getDoc(favoriteServiceRef);
 
 		if (favoriteServiceSnapshot.exists()) {
@@ -73,8 +74,8 @@ const DetailScreen = ({ navigation, route }) => {
 			userId: userId,
 		};
 
-		// Получаем ссылку на документ в коллекции 'favorites' с идентификатором, равным serviceId
-		const favoriteServiceRef = doc(db, 'favorites', userId);
+		// Получаем ссылку на документ в коллекции 'favorites' с идентификатором
+		const favoriteServiceRef = doc(db, 'favorites', `${userId}_${serviceId}`);
 
 		// Если услуга уже в избранном, удаляем ее из коллекции 'favorites'
 		if (like) {
