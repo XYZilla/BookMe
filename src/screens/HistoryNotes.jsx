@@ -22,12 +22,7 @@ const HistoryNotes = ({ navigation }) => {
 
 	const fetchData = async () => {
 		const querySnapshot = await getDocs(
-			query(
-				collection(db, 'appointments'),
-				where('userId', '==', userId),
-				orderBy('time', 'asc'),
-				orderBy('date', 'asc')
-			)
+			query(collection(db, 'appointments'), where('userId', '==', userId))
 		);
 
 		const newData = [];
@@ -41,7 +36,13 @@ const HistoryNotes = ({ navigation }) => {
 	useEffect(() => {
 		fetchData();
 		const unsubscribe = onSnapshot(
-			query(collection(db, 'appointments'), where('userId', '==', userId)),
+			query(
+				collection(db, 'appointments'),
+				where('active', '==', true),
+				where('userId', '==', userId),
+				orderBy('time', 'asc'),
+				orderBy('date', 'asc')
+			),
 			(snapshot) => {
 				const newData = [];
 				snapshot.forEach((doc) => {

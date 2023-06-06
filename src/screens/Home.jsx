@@ -96,7 +96,11 @@ const HomeScreen = ({ navigation }) => {
 
 		setSelectedCategory(null);
 		setDate(new Date());
-		navigation.navigate('Search', { categoryId: id, date: formattedDate });
+		navigation.navigate('Search', {
+			categoryId: id,
+			date: formattedDate,
+			categoryName: selectedCategory.name,
+		});
 		setShowAlert(false);
 	};
 

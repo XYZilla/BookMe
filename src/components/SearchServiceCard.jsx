@@ -6,7 +6,7 @@ const Text = styledComponent.StyledText;
 
 const SearchServiceCard = ({ title, onPress, image }) => {
 	return (
-		<View className='mt-5'>
+		<View className='mt-1 mb-5'>
 			<TouchableOpacity onPress={onPress}>
 				<Image
 					source={{

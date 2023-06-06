@@ -13,6 +13,7 @@ const SearchScreen = ({ route, navigation }) => {
 	const [data, setData] = useState([]);
 
 	const { categoryId } = route.params;
+	const { categoryName } = route.params;
 	const { date } = route.params;
 
 	const fetchData = async () => {
@@ -35,6 +36,13 @@ const SearchScreen = ({ route, navigation }) => {
 
 		setData(newServicesData);
 	};
+
+	const currentDate = new Date(date); // Преобразование строки даты в объект Date
+	const formattedDate = currentDate.toLocaleDateString('ru-RU', {
+		weekday: 'long',
+		month: 'long',
+		day: 'numeric',
+	});
 
 	useEffect(() => {
 		fetchData();
@@ -60,6 +68,10 @@ const SearchScreen = ({ route, navigation }) => {
 	return (
 		<View className='flex-1 justify-center items-center text-center'>
 			<View className='mt-[100px]'>
+				<View className='flex-row justify-between mt-5 mb-2'>
+					<Text className='text-lg font-semibold'>{categoryName}</Text>
+					<Text className='text-lg font-semibold'>{formattedDate}</Text>
+				</View>
 				<FlatList
 					data={data}
 					pagingEnabled
