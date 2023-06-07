@@ -37,7 +37,7 @@ const SignIn = ({ navigation }) => {
 			setLoading(true);
 			await signIn(emailOrLogin, password);
 			console.log('User signed in successfully');
-			navigation.navigate('HomeScreen');
+			navigation.navigate('Home');
 		} catch (error) {
 			console.log('Sign in failed:', error.message);
 			if (
